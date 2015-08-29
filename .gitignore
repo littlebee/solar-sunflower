@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+*.hex
 
 # Precompiled Headers
 *.gch
@@ -26,3 +27,11 @@
 *.exe
 *.out
 *.app
+
+# Mac
+.DS_Store
+.tags
+.tags1
+.lib*
+.dep*
+

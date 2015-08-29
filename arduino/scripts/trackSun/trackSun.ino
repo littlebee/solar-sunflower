@@ -15,7 +15,8 @@
 #define LIGHT_SENSOR_PIN A4
 
 // MAX speed is 255 - this is the value that gets written
-// to the ACTUATOR_PWM_PIN
+// to the ACTUATOR_PWM_PIN.  Note do not change or limit
+// detection will no work
 #define ACTUATOR_SPEED  255
 
 // when the amp sensor analog value is between these, it is
@@ -23,14 +24,18 @@
 #define ZEROAMP_RANGE_LOW 505
 #define ZEROAMP_RANGE_HIGH 520
 
+// directions for the actuator (value gets set to ACTUATOR_DIR_PIN)
 #define RETRACT 0
 #define EXTEND 1
 
 // don't move if sampled light input value is withing
 //STILL_TOLERANCE of g_lastInputValue
 #define STILL_TOLERANCE 2
+// move actuator until drop from max is less than
 #define SEEK_TOLERANCE 2
 
+// minimum number of milliseconds delay between sampling the ACS712
+// recommended in manufacturer sample source
 #define SAMPLING_DELAY 1
 
 int g_currentDirection = EXTEND;
@@ -97,10 +102,11 @@ void changeDirection(int direction = -1) {
 }
 
 
+// finds the max input by moving through the full range of motion
 void calibrate() {
   moveActuatorToEnd(EXTEND);   // start fully extended
 
-  long tMaxInput = 0;  // time elapsed while retracting that max input was acheived
+  long tMaxInput = 0;  // time elapsed while retracting that max input was achieved
   int maxInput = 0;   // what was the input
 
   long startMs = millis();
@@ -116,8 +122,8 @@ void calibrate() {
   }
   long endMs = millis();
 
+  // move back to point in time when at max
   moveActuator(EXTEND, endMs - startMs - tMaxInput);
-
 }
 
 // returns false if at end of travel
@@ -142,7 +148,7 @@ boolean seekHighInput(int pin, int direction, int inputValue) {
     serialPrintf("stillMoving=%d nextInputValue=%d", stillMoving, nextInputValue);
     atMax = almostEqual(nextInputValue, maxInputValue, SEEK_TOLERANCE);
 
-  }while (stillMoving && atMax);
+  } while (stillMoving && atMax);
 
   stopActuator();
 
@@ -150,26 +156,23 @@ boolean seekHighInput(int pin, int direction, int inputValue) {
 }
 
 void seekToLight() {
-  boolean stillMoving;
+  boolean stillMovable;
   int inputValue = analogRead(LIGHT_SENSOR_PIN);
   int initialValue = inputValue;
   if (almostEqual(inputValue, g_lastInputValue, STILL_TOLERANCE)) {
     return;
   }
-  stillMoving = seekHighInput(LIGHT_SENSOR_PIN, g_currentDirection, inputValue);
+  stillMovable = seekHighInput(LIGHT_SENSOR_PIN, g_currentDirection, inputValue);
   inputValue = analogRead(LIGHT_SENSOR_PIN);
   boolean lessThanAtStart = inputValue < initialValue - STILL_TOLERANCE;
-  if (!stillMoving || lessThanAtStart ) {
+  if (!stillMovable || lessThanAtStart ) {
     changeDirection();
   }
-  // if we are recieving less input than at start of this call, changeDirection
-  // and don't set g_lastInputValue so the next call into here starts seeking in
-  // the oposite direction without being blocked by the almostEqual() at the top
-  // of this method
+  // if we are receiving less input than at start of this call, changeDirection
+  // and go back to max
   if (lessThanAtStart) {
     seekHighInput(LIGHT_SENSOR_PIN, g_currentDirection, inputValue);
   }
-
   g_lastInputValue = inputValue;
 }
 
@@ -183,7 +186,16 @@ void setup() {
   pinMode(ACTUATOR_DIR_PIN, OUTPUT);
 
   pinMode(ACTUATOR_AMP_SENSOR_PIN, INPUT);
+  pinMode(LIGHT_SENSOR_PIN, INPUT);
 
+  //  we really don't need to calibrate anything, the seek algorithm should handle
+  //  variance in the ranges of inputs to the light sensor.
+  //
+  //  the scan of the range of movement for highest input source that calibrate()
+  //  performs may come in handy in high ambient light environments where it's hard
+  //  to distinguish a singular source.  The seek algorithm may need to be iterated
+  //  on to better support high ambient light environments
+  //
   //calibrate();
 
   serialPrintf("setup complete");
