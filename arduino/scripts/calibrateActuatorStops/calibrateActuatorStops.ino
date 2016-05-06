@@ -55,6 +55,11 @@ void stopActuator() {
   analogWrite(ACTUATOR_PWM_PIN, 0);
 }
 
+void someBogusMethod() {
+  /* just testing to see what atom does with this and how the git integration works */
+
+}
+
 // returns the number of milleseconds taken
 unsigned long moveActuatorToEnd(int direction) {
   long startMs = millis();
