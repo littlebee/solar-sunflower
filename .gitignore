@@ -1,3 +1,7 @@
+
+# sketchup temp files
+*\~.skp
+
 # Compiled Object files
 *.slo
 *.lo
