@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <link rel="stylesheet" type="text/css" href="stylesheets/custom.css" media="screen">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -43,7 +44,9 @@
 <li>10A DC Motor Sheild </li>
 <li>2 ACS712 current sensors for measuring drain and supply current</li>
 </ul>
-
+<p><a href="https://docs.google.com/spreadsheets/d/1rGvrzk4yF3bm95bJCBhM_qjQ1ohDBbdtPF48eGcn67I/edit?usp=sharing">
+See Materials Spreadsheet</a> for more details.
+</p>
 <p>The Arduinos live in a common utility box (not pictured) at the base of the towers.  The five Arduino Unos communicate will communicate (slave) with a Raspberry PI (master) over I2C.  The Raspberry has a clock and a programmed cycle.  </p>
 
 <p>In the morning (~8am) the Raspberry will instruct the petals to run a calibration sequence and analyze the results.  It will then instruct the petals to go into autonomous seek mode in which they will independently seek to the source of the most power being produced.    </p>
@@ -55,6 +58,15 @@
 <p>At midnight the flower will again close and go into rest.</p>
 
 <p>Cables run through the center of the tower.</p>
+
+<h6>More picture and Sketch Up Make files available on [github](https://github.com/littlebee/solar-sunflower) </h6>
+<i>click on an image to enlarge</i>
+<a href="docs/img/sunflower_e-sky__top_angle_with_dims.png"><img src="docs/img/sunflower_e-sky__top_angle_with_dims.png"/></a>
+<a href="docs/img/sunflower_e-sky_-_top_angle.png"><img src="docs/img/sunflower_e-sky_-_top_angle.png"/></a>
+<a href="docs/img/sunflower_e-sky_-_top_down.png"><img src="docs/img/sunflower_e-sky_-_top_down.png"/></a>
+<a href="docs/img/sunflower_e-sky_front_1.png"><img src="docs/img/sunflower_e-sky_front_1.png"/></a>
+<a href="docs/img/sunflower_one_-_petal_stages_2_jpg.png"><img src="docs/img/sunflower_one_-_petal_stages_2_jpg.png"/></a>
+
         </section>
 
         <aside id="sidebar">
@@ -73,14 +85,6 @@
         </aside>
       </div>
     </div>
-  <div>
-    what the fuck
-  </div>
-  <img src="docs/img/sunflower_e-sky__top_angle_with_dims.png"/>
-  <img src="docs/img/sunflower_e-sky_-_top_angle.png"/>
-  <img src="docs/img/sunflower_e-sky_-_top_down.png"/>
-  <img src="docs/img/sunflower_e-sky_front_1.png"/>
-  <img src="docs/img/sunflower_one_-_petal_stages_2_jpg.png"/>
   
   </body>
 </html>
