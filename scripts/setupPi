@@ -15,7 +15,17 @@ if [ ! -d "sunflower" ]; then
 fi
 
 sudo apt-get -y install vim
-sudo apt-get -y install arduino arduino-core
+
+wget https://downloads.arduino.cc/arduino-1.6.9-linuxarm.tar.xz
+tar -xf arduino-1.6.9-linuxarm.tar.xz
+rm -f arduino-1.6.9-linuxarm.tar.xz
+sudo rm -Rf /usr/share/arduino-1.6.9
+sudo rm -Rf /usr/share/arduino
+sudo mv arduino-1.6.9 /usr/share
+sudo chown -R root:root /usr/share/arduino-1.6.9
+sudo ln -s /usr/share/arduino-1.6.9 /usr/share/arduino
+
+
 
 # setup nodejs
 wget https://nodejs.org/download/release/latest-v6.x/node-v6.1.0-linux-armv7l.tar.gz
@@ -27,3 +37,6 @@ node -v
 npm --version
 
 sudo npm install -g grunt-cli coffee-script
+
+sudo apt-get -y install locate
+sudo updatedb

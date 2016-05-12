@@ -48,7 +48,7 @@ module.exports = (grunt, initConfig={}) ->
 
     rsync: 
       options: 
-        args: ["--verbose"],
+        args: ["--verbose", "--timeout=2"],
         exclude: [".git*","*.scss","node_modules"],
         recursive: true
       pi: 
@@ -89,7 +89,17 @@ module.exports = (grunt, initConfig={}) ->
   grunt.registerTask 'build_arduino', ['shell:build_arduino']
   grunt.registerTask 'build', ['build_web', 'build_arduino']
   grunt.registerTask 'test', ["shell:test"]
-  grunt.registerTask 'deploy', ['rsync', 'shell:deploy_arduinos'] 
+  grunt.registerTask 'deploy', ['forceOn', 'rsync', 'shell:deploy_arduinos', 'forceOff'] 
   grunt.registerTask 'default', ['availabletasks']
   
   grunt.loadNpmTasks('grunt-rsync');
+  
+  grunt.registerTask 'forceOff', 'Forces the force flag off', ->
+    grunt.option 'force', false
+    return 
+
+
+  grunt.registerTask 'forceOn', 'Forces the force flag on', ->
+    grunt.option 'force', true
+    return 
+  

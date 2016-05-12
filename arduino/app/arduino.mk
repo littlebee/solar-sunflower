@@ -163,10 +163,11 @@
 ifndef ARDUINODIR
 ARDUINODIR := $(firstword $(wildcard ~/opt/arduino /usr/share/arduino \
 	/Applications/Arduino.app/Contents/Resources/Java \
+	/Applications/Arduino.app/Contents/Java \
 	$(HOME)/Applications/Arduino.app/Contents/Resources/Java))
 endif
 ifeq "$(wildcard $(ARDUINODIR)/hardware/arduino/avr/boards.txt)" ""
-$(error ARDUINODIR is not set correctly; arduino software not found)
+	$(error ARDUINODIR is not set correctly; arduino software not found)
 endif
 
 # default arduino version
@@ -182,9 +183,9 @@ LIBRARYPATH ?= libraries libs $(SKETCHBOOKDIR)/libraries $(ARDUINODIR)/libraries
 # default serial device to a poor guess (something that might be an arduino)
 SERIALDEVGUESS := 0
 ifndef SERIALDEV
-SERIALDEV := $(firstword $(wildcard \
-	/dev/ttyACM? /dev/ttyUSB? /dev/tty.usbserial* /dev/tty.usbmodem*))
-SERIALDEVGUESS := 1
+	SERIALDEVS := $(wildcard /dev/ttyACM? /dev/ttyUSB? /dev/tty.usbserial* /dev/tty.usbmodem*)
+	SERIALDEV := $(firstword $(SERIALDEVS))
+	SERIALDEVGUESS := 1
 endif
 
 # no board?
@@ -300,7 +301,7 @@ CPPFLAGS += $(addprefix -I , $(LIBRARYDIRS))
 CPPDEPFLAGS = -MMD -MP -MF .dep/$<.dep
 CPPINOFLAGS := -x c++ -include $(ARDUINOCOREDIR)/Arduino.h
 AVRDUDEFLAGS += $(addprefix -C , $(AVRDUDECONF)) -DV
-AVRDUDEFLAGS += -p $(BOARD_BUILD_MCU) -P $(SERIALDEV)
+AVRDUDEFLAGS += -p $(BOARD_BUILD_MCU)
 AVRDUDEFLAGS += -c $(BOARD_UPLOAD_PROTOCOL) -b $(BOARD_UPLOAD_SPEED)
 LINKFLAGS += -Os -Wl,--gc-sections -mmcu=$(BOARD_BUILD_MCU)
 
@@ -328,16 +329,23 @@ target: $(TARGET).hex
 upload: target
 	@echo "\nUploading to board..."
 	@test -n "$(SERIALDEV)" || { \
-		echo "error: SERIALDEV could not be determined automatically." >&2; \
+		echo "error: SERIALDEV(s) could not be determined automatically." >&2; \
 		exit 1; }
 	@test 0 -eq $(SERIALDEVGUESS) || { \
-		echo "*GUESSING* at serial device:" $(SERIALDEV); \
+		echo "*GUESSING* at serial devices:" $(SERIALDEVS); \
 		echo; }
+	
+		
 ifeq "$(BOARD_BOOTLOADER_PATH)" "caterina"
 	stty $(STTYFARG) $(SERIALDEV) speed 1200
 	sleep 1
 endif
-	$(AVRDUDE) $(AVRDUDEFLAGS) -U flash:w:$(TARGET).hex:i
+	
+ifdef SERIALDEVS
+	$(foreach dev, $(SERIALDEVS), $(shell $(AVRDUDE) $(AVRDUDEFLAGS) -P $(dev) -U flash:w:$(TARGET).hex:i))
+else 
+	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U flash:w:$(TARGET).hex:i
+endif
 
 clean:
 	rm -f $(OBJECTS)
@@ -374,16 +382,16 @@ bootloader:
 		echo "*GUESSING* at serial device:" $(SERIALDEV); \
 		echo; }
 	stty $(STTYFARG) $(SERIALDEV) hupcl
-	$(AVRDUDE) $(AVRDUDEFLAGS) -U lock:w:$(BOARD_BOOTLOADER_UNLOCK):m
-	$(AVRDUDE) $(AVRDUDEFLAGS) -eU lfuse:w:$(BOARD_BOOTLOADER_LFUSES):m
-	$(AVRDUDE) $(AVRDUDEFLAGS) -U hfuse:w:$(BOARD_BOOTLOADER_HFUSES):m
+	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U lock:w:$(BOARD_BOOTLOADER_UNLOCK):m
+	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -eU lfuse:w:$(BOARD_BOOTLOADER_LFUSES):m
+	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U hfuse:w:$(BOARD_BOOTLOADER_HFUSES):m
 ifneq "$(BOARD_BOOTLOADER_EFUSES)" ""
-	$(AVRDUDE) $(AVRDUDEFLAGS) -U efuse:w:$(BOARD_BOOTLOADER_EFUSES):m
+	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U efuse:w:$(BOARD_BOOTLOADER_EFUSES):m
 endif
 ifneq "$(BOOTLOADERHEX)" ""
-	$(AVRDUDE) $(AVRDUDEFLAGS) -U flash:w:$(BOOTLOADERHEX):i
+	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U flash:w:$(BOOTLOADERHEX):i
 endif
-	$(AVRDUDE) $(AVRDUDEFLAGS) -U lock:w:$(BOARD_BOOTLOADER_LOCK):m
+	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U lock:w:$(BOARD_BOOTLOADER_LOCK):m
 
 # building the target
 
