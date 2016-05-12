@@ -1,6 +1,10 @@
 
 # sketchup temp files
 *\~.skp
+AutoSave*.skp
+
+# node modules
+node_modules/
 
 # Compiled Object files
 *.slo

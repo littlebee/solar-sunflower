@@ -1,0 +1,34 @@
+{
+  "name": "solar-sunflower",
+  "version": "0.1.0",
+  "description": "Cad models, code and docs for solar sunflower",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/littlebee/solar-sunflower.git"
+  },
+  "author": "Bee",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/littlebee/solar-sunflower/issues"
+  },
+  "homepage": "https://github.com/littlebee/solar-sunflower#readme",
+  "devDependencies": {
+    "bumble-build": "^0.3.6",
+    "grunt": "^0.4.5",
+    "grunt-rsync": "^1.0.1",
+    "lodash": "^4.12.0"
+  },
+  "dependencies": {
+    "underscore": "^1.8.3",
+    "backbone": "^1.3.3",
+    "react": "^0.14.8", 
+    "react-dom": "^0.14.8"
+  }
+}
