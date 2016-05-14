@@ -305,9 +305,9 @@ AVRDUDECONF := $(wildcard $(AVRDUDE).conf)
 endif
 endif
 
-$(warning LIBRARYPATH: $(LIBRARYPATH));
-$(warning LIBRARYDIRS: $(LIBRARYDIRS));
-$(warning LIBRARIES: $(LIBRARIES));
+# $(warning LIBRARYPATH: $(LIBRARYPATH));
+# $(warning LIBRARYDIRS: $(LIBRARYDIRS));
+# $(warning LIBRARIES: $(LIBRARIES));
 
 # flags
 CPPFLAGS += -Os -Wall -fno-exceptions -ffunction-sections -fdata-sections
