@@ -1,3 +1,11 @@
+#
+#
+# This was modified from https://github.com/littlebee/arduino-mk for the 
+#	solar-sunflower project.  The following features were added:
+#
+#   - upload to all arduinos found connected to usb serial devices
+#
+# littlebee/arduino-mk was originally stolen from:
 #_______________________________________________________________________________
 #
 #                         edam's Arduino makefile
@@ -178,7 +186,10 @@ AVRTOOLSPATH ?= $(subst :, , $(PATH)) $(ARDUINODIR)/hardware/tools \
 	$(ARDUINODIR)/hardware/tools/avr/bin
 
 # default path to find libraries
-LIBRARYPATH ?= libraries libs $(SKETCHBOOKDIR)/libraries $(ARDUINODIR)/libraries
+LIBRARYPATH ?= ./libraries ./libs $(ARDUINODIR)/libraries \
+	$(ARDUINODIR)/hardware/arduino/avr/libraries \
+	$(ARDUINODIR)/hardware/arduino/avr/libraries/SoftwareSerial/src
+
 
 # default serial device to a poor guess (something that might be an arduino)
 SERIALDEVGUESS := 0
@@ -245,10 +256,11 @@ TARGET := $(basename $(INOFILE))
 SOURCES := $(INOFILE) \
 	$(wildcard *.c *.cc *.cpp *.C) \
 	$(wildcard $(addprefix util/, *.c *.cc *.cpp *.C)) \
-	$(wildcard $(addprefix utility/, *.c *.cc *.cpp *.C))
+	$(wildcard $(addprefix utility/, *.c *.cc *.cpp *.C)) \
+	$(wildcard $(addprefix libraries/, *.c *.cc *.cpp *.C))
 
 # automatically determine included libraries
-LIBRARIES := $(filter $(notdir $(wildcard $(addsuffix /*, $(LIBRARYPATH)))), \
+LIBRARIES ?= $(filter $(notdir $(wildcard $(addsuffix /*, $(LIBRARYPATH)))), \
 	$(shell sed -ne "s/^ *\# *include *[<\"]\(.*\)\.h[>\"]/\1/p" $(SOURCES)))
 
 endif
@@ -268,6 +280,10 @@ ARDUINOCOREDIR := $(ARDUINODIR)/hardware/arduino/avr/cores/arduino/
 LIBRARYDIRS := $(foreach lib, $(LIBRARIES), \
 	$(firstword $(wildcard $(addsuffix /$(lib), $(LIBRARYPATH)))))
 LIBRARYDIRS += $(addsuffix /utility, $(LIBRARYDIRS))
+
+# $(warning LIBRARYDIRS_init $(LIBRARYDIRS))
+# $(warning LIBRARIES_init $(LIBRARIES))
+# $(warning LIBRARYPATH_init $(LIBRARYPATH))
 
 # files
 TARGET := $(if $(TARGET),$(TARGET),a.out)
@@ -289,6 +305,10 @@ AVRDUDECONF := $(wildcard $(AVRDUDE).conf)
 endif
 endif
 
+$(warning LIBRARYPATH: $(LIBRARYPATH));
+$(warning LIBRARYDIRS: $(LIBRARYDIRS));
+$(warning LIBRARIES: $(LIBRARIES));
+
 # flags
 CPPFLAGS += -Os -Wall -fno-exceptions -ffunction-sections -fdata-sections
 CPPFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
@@ -297,7 +317,7 @@ CPPFLAGS += -DF_CPU=$(BOARD_BUILD_FCPU) -DARDUINO=$(ARDUINOCONST)
 CPPFLAGS += -DUSB_VID=$(BOARD_USB_VID) -DUSB_PID=$(BOARD_USB_PID)
 CPPFLAGS += -I. -Iutil -Iutility -I $(ARDUINOCOREDIR)
 CPPFLAGS += -I $(ARDUINODIR)/hardware/arduino/avr/variants/$(BOARD_BUILD_VARIANT)/
-CPPFLAGS += $(addprefix -I , $(LIBRARYDIRS))
+CPPFLAGS += $(addprefix -I , $(LIBRARYPATH))
 CPPDEPFLAGS = -MMD -MP -MF .dep/$<.dep
 CPPINOFLAGS := -x c++ -include $(ARDUINOCOREDIR)/Arduino.h
 AVRDUDEFLAGS += $(addprefix -C , $(AVRDUDECONF)) -DV
@@ -334,7 +354,6 @@ upload: target
 	@test 0 -eq $(SERIALDEVGUESS) || { \
 		echo "*GUESSING* at serial devices:" $(SERIALDEVS); \
 		echo; }
-	
 		
 ifeq "$(BOARD_BOOTLOADER_PATH)" "caterina"
 	stty $(STTYFARG) $(SERIALDEV) speed 1200

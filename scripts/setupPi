@@ -26,7 +26,6 @@ sudo chown -R root:root /usr/share/arduino-1.6.9
 sudo ln -s /usr/share/arduino-1.6.9 /usr/share/arduino
 
 
-
 # setup nodejs
 wget https://nodejs.org/download/release/latest-v6.x/node-v6.1.0-linux-armv7l.tar.gz
 tar -xvf node-v6.1.0-linux-armv7l.tar.gz
