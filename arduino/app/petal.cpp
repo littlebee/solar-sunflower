@@ -41,7 +41,7 @@
 // recommended in manufacturer sample source
 #define SAMPLING_DELAY 1
 
-static const char* PetalStateNames[] = {"HALTED", "CALIBRATING", "SEEKING"};
+static const char* PetalStateNames[] = {"HALTED", "CALIBRATING", "SEEKING", "MOVING"};
 
 
 Petal::Petal() {
@@ -49,23 +49,25 @@ Petal::Petal() {
   _lastLightSensorValue = 0;
   _petalState = PETAL_HALTED;
 
+}
+
+void Petal::setup() {
   pinMode(ACTUATOR_PWM_PIN, OUTPUT);
   pinMode(ACTUATOR_DIR_PIN, OUTPUT);
 
   pinMode(ACTUATOR_AMP_SENSOR_PIN, INPUT);
   pinMode(LIGHT_SENSOR_PIN, INPUT);
+  
 }
 
 boolean Petal::isMoving() {
   int val = analogRead(ACTUATOR_AMP_SENSOR_PIN);
-  // serialPrintf("Amp sensor reading: %d", val);
   return val < ZEROAMP_RANGE_LOW || val > ZEROAMP_RANGE_HIGH;
 }
 
 void Petal::halt() {
   stopActuator();
   _petalState = PETAL_HALTED;
-  printStatus();
 }
 
 boolean Petal::isHalted() {
@@ -83,9 +85,11 @@ void Petal::loop() {
   }
   
   if (_petalState == PETAL_SEEKING)
-    seekToLight();
+    seekLoop();
   else if (_petalState == PETAL_CALIBRATING)
     calibrateLoop();
+  else if (_petalState == PETAL_MOVING) 
+    moveToEndLoop();
     
   return;
     
@@ -107,12 +111,12 @@ void Petal::calibrate() {
 
 // finds the max input by moving through the full range of motion
 void Petal::calibrateLoop() {
-  _petalState = PETAL_CALIBRATING;
-  
+
   if (_calibrationStage == CALIBRATION_RESETING) {
-    if( !isMoving() )
+    if( !isMoving() ){
       moveRelativeToCurrent(EXTEND);    // start moving
-      
+      delay(SAMPLING_DELAY);
+    }
     if (!isMoving()) {        // should be moving unless at end
       _calibrationStage = CALIBRATION_SAMPLING;
       _calibrationSamplingStartedMs = millis();
@@ -123,14 +127,13 @@ void Petal::calibrateLoop() {
   if (_calibrationStage == CALIBRATION_SAMPLING) {
     if (!isMoving()) {
       moveRelativeToCurrent(RETRACT);
+      delay(SAMPLING_DELAY);
     }
     if (isMoving() && !isHalted() ) {
       int inputValue = analogRead(LIGHT_SENSOR_PIN);
       if (inputValue > _calibratedHighLightSensorValue) {
         _calibratedHighLightSensorValue = inputValue;
         _calibratedHighLightSensorMs = millis() - _calibrationSamplingStartedMs;
-        printStatus();
-        delay(SAMPLING_DELAY);
       }
     } 
     else {
@@ -178,21 +181,25 @@ boolean Petal::moveRelativeToCurrent(int direction, int mSeconds /* =0 */) {
     delay(SAMPLING_DELAY);
     stillMoving = isMoving();
   }
-  stopActuator();
+  if (abs(mSeconds) > 0)
+    stopActuator();
   return true;
 }
 
 // returns the number of milliseconds taken
-unsigned long Petal::moveToEnd(int direction) {
-  long startMs = millis();
+void Petal::moveToEnd(int direction) {
   moveRelativeToCurrent(direction);
-  while (isMoving()){
-    if (isHalted()) break;
-    delay(SAMPLING_DELAY);  // slight delay between sampling the ACS712 module is recommended
-  }
-  stopActuator();
-  long endMs = millis();
-  return endMs - startMs;
+  _petalState = PETAL_MOVING;
+  
+}
+
+void Petal::moveToEndLoop() {
+  if (isMoving() && !isHalted())
+    return;
+  else
+    if (!isHalted()) halt();
+  
+  delay(SAMPLING_DELAY);  // slight delay between sampling the ACS712 module is recommended
 }
 
 void Petal::changeDirection(int direction /* =-1 */) {
@@ -221,7 +228,6 @@ boolean Petal::seekHighInput(int pin, int direction, int inputValue) {
       maxInputValue = nextInputValue;
 
     nextInputValue = analogRead(pin);
-    serialPrintf("stillMoving=%d nextInputValue=%d", stillMoving, nextInputValue);
     atMax = almostEqual(nextInputValue, maxInputValue, PETAL_SEEKING_TOLERANCE);
 
   } while (stillMoving && atMax);
@@ -231,7 +237,7 @@ boolean Petal::seekHighInput(int pin, int direction, int inputValue) {
   return stillMoving;
 }
 
-void Petal::seekToLight() {
+void Petal::seekLoop() {
   boolean stillMovable;
   int inputValue = analogRead(LIGHT_SENSOR_PIN);
   int initialValue = inputValue;

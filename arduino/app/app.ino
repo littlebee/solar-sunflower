@@ -18,19 +18,31 @@ SerialCommand scm;
 Petal petal;
 
 void onCalibrate() {
-  
   petal.calibrate();
+  petal.printStatus();
 }
 
 void onSeek() {
   petal.seek();
+  petal.printStatus();
 }
 
 void onHalt() {
   petal.halt();
+  petal.printStatus();
 }
 
 void onStatus() {
+  petal.printStatus();
+}
+
+void onExtend() {
+  petal.moveToEnd(1);
+  petal.printStatus();
+}
+
+void onRetract() {
+  petal.moveToEnd(0);
   petal.printStatus();
 }
 
@@ -42,11 +54,15 @@ void onUnrecognized() {
 void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
+  petal.setup();
+  
   // Setup callbacks for SerialCommand commands 
   scm.addCommand("calibrate", onCalibrate);       
   scm.addCommand("seek", onSeek);       
   scm.addCommand("halt", onHalt);  
   scm.addCommand("status", onStatus);
+  scm.addCommand("extend", onExtend);
+  scm.addCommand("retract", onRetract);
   scm.addDefaultHandler(onUnrecognized);  
   
   Serial.println("Ready");   

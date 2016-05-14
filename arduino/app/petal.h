@@ -1,12 +1,13 @@
 
 
-enum PetalStates { PETAL_HALTED, PETAL_CALIBRATING, PETAL_SEEKING };
+enum PetalStates { PETAL_HALTED, PETAL_CALIBRATING, PETAL_SEEKING, PETAL_MOVING };
 enum CalibrationStages { NOT_CALIBRATING, CALIBRATION_RESETING, CALIBRATION_SAMPLING, CALIBRATION_POSITIONING };
 
 class Petal {
   
 public: 
   Petal();
+  void setup();
   
   bool isMoving();
   
@@ -21,7 +22,6 @@ public:
   // full and then opens it fully and computes to time end to end and the point
   // of highest power input.  This method is synchronous.
   void calibrate();
-  void calibrateLoop();
   
   // This is the main method to start the petal into power seek mode
   // This method is asynchronous. you must call our loop() method periodically
@@ -30,7 +30,8 @@ public:
   
   // Prints a one line status message to serial out
   void printStatus();
-  
+
+  void moveToEnd(int direction);
   
   
 private:
@@ -43,12 +44,14 @@ private:
   PetalStates _petalState;
   CalibrationStages _calibrationStage; 
   
+  void calibrateLoop();
+  void moveToEndLoop();
+  void seekLoop();
   
-  void changeDirection(int direction=-1);
-  unsigned long moveToEnd(int direction);
   bool moveRelativeToCurrent(int direction, int mSeconds=0);
+
+  void changeDirection(int direction=-1);
   bool seekHighInput(int pin, int direction, int inputValue);
-  void seekToLight();
   
   
   
