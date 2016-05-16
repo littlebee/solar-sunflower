@@ -70,6 +70,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define SERIALCOMMANDDEBUG 1
 #undef SERIALCOMMANDDEBUG      // Comment this out to run the library in debug mode (verbose messages)
 
+typedef struct _callback {
+	char command[SERIALCOMMANDBUFFER];
+	void (*function)();
+} SerialCommandCallback;            // Data structure to hold Command/Handler function key-value pairs
+
 class SerialCommand
 {
 	public:
@@ -83,7 +88,9 @@ class SerialCommand
 		void readSerial();    // Main entry point.  
 		void addCommand(const char *, void(*)());   // Add commands to processing dictionary
 		void addDefaultHandler(void (*function)());    // A handler to call when no valid command received. 
-	
+		SerialCommandCallback *getCommands();	
+		int getNumCommands();
+
 	private:
 		char inChar;          // A character read from the serial stream 
 		char buffer[SERIALCOMMANDBUFFER];   // Buffer of stored characters while waiting for terminator character
@@ -92,10 +99,6 @@ class SerialCommand
 		char term;                          // Character that signals end of command (default '\r')
 		char *token;                        // Returned token from the command buffer as returned by strtok_r
 		char *last;                         // State variable used by strtok_r during processing
-		typedef struct _callback {
-			char command[SERIALCOMMANDBUFFER];
-			void (*function)();
-		} SerialCommandCallback;            // Data structure to hold Command/Handler function key-value pairs
 		int numCommand;
 		SerialCommandCallback CommandList[MAXSERIALCOMMANDS];   // Actual definition for command/handler array
 		void (*defaultHandler)();           // Pointer to the default handler function 

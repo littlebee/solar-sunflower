@@ -46,6 +46,13 @@ void onRetract() {
   petal.printStatus();
 }
 
+void onHelp() {
+  SerialCommandCallback *commands = scm.getCommands();
+  int numCommands = scm.getNumCommands();
+  for (int i = 0; i < numCommands; i++ )
+    Serial.println(commands[i].command);
+}
+
 void onUnrecognized() {
   serialPrintf("ERROR unrecognized command");
 }
@@ -63,9 +70,10 @@ void setup() {
   scm.addCommand("status", onStatus);
   scm.addCommand("extend", onExtend);
   scm.addCommand("retract", onRetract);
+  scm.addCommand("help", onHelp);
   scm.addDefaultHandler(onUnrecognized);  
   
-  Serial.println("Ready");   
+  Serial.println("ready");   
 }
 
 // the loop routine runs over and over again forever:

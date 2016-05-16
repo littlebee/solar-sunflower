@@ -38,17 +38,17 @@ module.exports = (grunt, initConfig={}) ->
       test:
         command: 'node_modules/bumble-test/bin/testRunner.coffee'
         
-      build_arduino:
+      buildArduino:
         command: 'cd arduino/app && make'
         
-      deploy_arduinos:
+      deployArduinos:
         command: 'cd arduino/app && make upload'
         failOnError: false
 
 
     rsync: 
       options: 
-        args: ["--verbose", "--timeout=2"],
+        args: ["--timeout=2"],
         exclude: [".git*","*.scss","node_modules"],
         recursive: true
       pi: 
@@ -74,10 +74,25 @@ module.exports = (grunt, initConfig={}) ->
 
     
     watch:
-      deployToPI:
+      buildArduino:
+        files: ["arduino/**/*.{ino,cpp,c,h}"]
+        tasks: ["buildArduino"]
+        
+      deployArduinos:
+        files: ["arduino/**/*.{o,hex}"]
+        tasks: ["deployArduinos"]
+      
+      buildWeb: 
+        files: ["web/**/*"]
+        tasks: ["buildWeb"]
+      
+      deployPI:
         files: ["**/*"]
-        tasks: ["deploy"]
-
+        tasks: ["deployPi"]
+        options: 
+          # higher debounce to let the above finish before uploading to pi
+          debounceDelay: 500,
+        
 
     webpack:
       distrib: require("./webpack.config.coffee")
@@ -85,11 +100,15 @@ module.exports = (grunt, initConfig={}) ->
 
 
   # tasks
-  grunt.registerTask 'build_web', ['webpack:distrib', 'webpack:optimize']
-  grunt.registerTask 'build_arduino', ['shell:build_arduino']
-  grunt.registerTask 'build', ['build_web', 'build_arduino']
+  grunt.registerTask 'build', ['buildWeb', 'buildArduino']
+  grunt.registerTask 'buildWeb', ['webpack:distrib', 'webpack:optimize']
+  grunt.registerTask 'buildArduino', ['shell:buildArduino']
   grunt.registerTask 'test', ["shell:test"]
-  grunt.registerTask 'deploy', ['forceOn', 'rsync', 'shell:deploy_arduinos', 'forceOff'] 
+  grunt.registerTask 'deploy', ['forceOn', 'rsync', 'deployArduinos', 'forceOff'] 
+  grunt.registerTask 'deployArduinos', ['shell:deployArduinos']
+  # uses forceOn to downgrade failures in deploying to warnings 
+  grunt.registerTask 'deployPi', ['forceOn', 'rsync', 'forceOff']   
+  
   grunt.registerTask 'default', ['availabletasks']
   
   grunt.loadNpmTasks('grunt-rsync');

@@ -17,6 +17,8 @@
 #define ACTUATOR_DIR_PIN 12
 #define LIGHT_SENSOR_PIN A4
 
+
+
 // MAX speed is 255 - this is the value that gets written
 // to the ACTUATOR_PWM_PIN.  Note do not change or limit
 // detection will not work
@@ -41,14 +43,18 @@
 // recommended in manufacturer sample source
 #define SAMPLING_DELAY 1
 
-static const char* PetalStateNames[] = {"HALTED", "CALIBRATING", "SEEKING", "MOVING"};
-
+static const char* PETAL_STATE_NAMES[] = {"HALTED", "CALIBRATING", "SEEKING", "MOVING"};
+static int DIP_SWITCH_PINS[] = {8,9,10,11};
 
 Petal::Petal() {
   _currentDirection = EXTEND;
   _lastLightSensorValue = 0;
   _petalState = PETAL_HALTED;
-
+  _petalId = 0;
+  for (int i = 0; i < 4; i++){
+    int pinValue = digitalRead(DIP_SWITCH_PINS[i]);
+    _petalId = ((_petalId << 1) & pinValue);
+  }
 }
 
 void Petal::setup() {
@@ -92,12 +98,8 @@ void Petal::loop() {
     moveToEndLoop();
     
   return;
-    
-  
-  
-  
-  
 }
+
 void Petal::calibrate() {
   _petalState = PETAL_CALIBRATING;
   _calibrationStage = CALIBRATION_RESETING;
@@ -159,10 +161,11 @@ void Petal::seek() {
 
 
 void Petal::printStatus() {
-  serialPrintf("%s %d %d %d %ld %ld", 
-    PetalStateNames[_petalState], 
+  serialPrintf("%d %s %d %d %d %ld %ld", 
+    _petalId,
+    PETAL_STATE_NAMES[_petalState], 
     _currentDirection, 
-    _lastLightSensorValue,
+    analogRead(LIGHT_SENSOR_PIN),
     _calibratedHighLightSensorValue,
     _calibratedHighLightSensorMs,
     _calibratedDurationMs

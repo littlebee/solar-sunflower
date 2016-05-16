@@ -152,6 +152,13 @@ void SerialCommand::readSerial()
 	}
 }
 
+SerialCommandCallback *SerialCommand::getCommands() {
+	return CommandList;
+}
+
+int SerialCommand::getNumCommands() {
+	return numCommand;
+}
 // Adds a "command" and a handler function to the list of available commands.  
 // This is used for matching a found token in the buffer, and gives the pointer
 // to the handler function to deal with it. 
