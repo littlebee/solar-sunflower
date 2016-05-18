@@ -8,6 +8,7 @@
 */
 
 #include <Arduino.h>
+#include "./libraries/ArduinoJson/include/ArduinoJson.h"
 
 #include "petal.h"
 #include "util.h"
@@ -47,7 +48,7 @@ static const char* PETAL_STATE_NAMES[] = {"HALTED", "CALIBRATING", "SEEKING", "M
 static int DIP_SWITCH_PINS[] = {8,9,10,11};
 
 Petal::Petal() {
-  _currentDirection = EXTEND;
+  _direction = EXTEND;
   _lastLightSensorValue = 0;
   _petalState = PETAL_HALTED;
   _petalId = 0;
@@ -64,6 +65,45 @@ void Petal::setup() {
   pinMode(ACTUATOR_AMP_SENSOR_PIN, INPUT);
   pinMode(LIGHT_SENSOR_PIN, INPUT);
   
+}
+
+// using JSON may be a little overkill, but it allows you to 
+// add something in here and not touch the API server to get it
+// in the front end.  The JSON we emit here becomes the attributes
+// of the petal model in the api which gets serialized to the 
+// React front end.
+void Petal::printStatus() {
+  StaticJsonBuffer<200> jsonBuffer;
+
+  JsonObject& root = jsonBuffer.createObject();
+  root["petalId"] = _petalId;
+  root["petalState"] = PETAL_STATE_NAMES[_petalState];
+  root["solarSensorValue"] = analogRead(LIGHT_SENSOR_PIN);
+  root["actuatorSensorValue"] = analogRead(ACTUATOR_AMP_SENSOR_PIN);
+  
+  root["direction"] = _direction; 
+  root["calibratedHighLightSensorValue"] = _calibratedHighLightSensorValue;
+  root["calibratedHighLightSensorMs"] = _calibratedHighLightSensorMs;
+  root["calibratedDurationMs"] = _calibratedDurationMs;
+  
+  // TODO : maybe add some data logging and avg, min, max over time so the 
+  //    api doesn't have to constantly call status?
+  // JsonArray& data = root.createNestedArray("data");
+  // data.add(48.756080, 6);  // 6 is the number of decimals to print
+  // data.add(2.302038, 6);  // if not specified, 2 digits are printed
+
+  root.printTo(Serial);
+  Serial.println();
+  
+  // serialPrintf("%d %s %d %d %d %ld %ld", 
+  //   _petalId,
+  //   PETAL_STATE_NAMES[_petalState], 
+  //   _direction, 
+  //   analogRead(LIGHT_SENSOR_PIN),
+  //   _calibratedHighLightSensorValue,
+  //   _calibratedHighLightSensorMs,
+  //   _calibratedDurationMs
+  // );
 }
 
 boolean Petal::isMoving() {
@@ -159,20 +199,6 @@ void Petal::seek() {
   _petalState = PETAL_SEEKING;
 }
 
-
-void Petal::printStatus() {
-  serialPrintf("%d %s %d %d %d %ld %ld", 
-    _petalId,
-    PETAL_STATE_NAMES[_petalState], 
-    _currentDirection, 
-    analogRead(LIGHT_SENSOR_PIN),
-    _calibratedHighLightSensorValue,
-    _calibratedHighLightSensorMs,
-    _calibratedDurationMs
-  );
-}
-
-
 // mSeconds = optionally move in direction for n milliseconds and then stop
 // returns false if mSeconds != 0 and at end of travel 
 boolean Petal::moveRelativeToCurrent(int direction, int mSeconds /* =0 */) {
@@ -207,9 +233,9 @@ void Petal::moveToEndLoop() {
 
 void Petal::changeDirection(int direction /* =-1 */) {
   if (direction == -1)
-    direction = _currentDirection + 1;
+    direction = _direction + 1;
   // mask to single bit - 0 or 1, so 0 + 1 becomes 1 and 1 + 1 becomes 0
-  _currentDirection = direction & 1;
+  _direction = direction & 1;
 }
 
 
@@ -250,7 +276,7 @@ void Petal::seekLoop() {
   if (almostEqual(inputValue, _lastLightSensorValue, STILL_TOLERANCE)) {
     return;
   }
-  stillMovable = seekHighInput(LIGHT_SENSOR_PIN, _currentDirection, inputValue);
+  stillMovable = seekHighInput(LIGHT_SENSOR_PIN, _direction, inputValue);
   inputValue = analogRead(LIGHT_SENSOR_PIN);
   boolean lessThanAtStart = inputValue < initialValue - STILL_TOLERANCE;
   if (!stillMovable || lessThanAtStart ) {
@@ -259,7 +285,7 @@ void Petal::seekLoop() {
   // if we are receiving less input than at start of this call, changeDirection
   // and go back to max
   if (lessThanAtStart) {
-    seekHighInput(LIGHT_SENSOR_PIN, _currentDirection, inputValue);
+    seekHighInput(LIGHT_SENSOR_PIN, _direction, inputValue);
   }
   _lastLightSensorValue = inputValue;
 }

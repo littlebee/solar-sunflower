@@ -16,7 +16,7 @@ module.exports = class Petal extends Backbone.Model
   
   defaults:
     petalId: -1
-    state: "unknown"
+    petalState: "unknown"
   
   #  expects id attribute to be the serial port device name
   constructor: (attributes, options) ->
@@ -34,36 +34,30 @@ module.exports = class Petal extends Backbone.Model
       parser: Parsers.readline('\n')
 
     port.on 'open', (err) ->
-      @_handleError(err) if err
+      @_handleError(err, port, options) 
     
     port.on 'data', (resp) =>
       console.log "response from arduino", resp
       if Bstr.weaklyEqual(resp, "ready")
         console.log "sending \"#{command}\" to #{@id}"
         port.write "#{command}\n", (err, bytesWritten) =>
-          @_handleError(err, options) if err
+          @_handleError(err, port, options)
       else
         @set @parse(resp) 
         options.success?(@, resp)
         @trigger 'sync', @
         port.close()
         
+
   parse: (resp) ->
-    resp = resp.split(' ')
-    return {
-      petalId: resp[0]
-      state: resp[1]
-      direction: resp[2]
-      panelCurrentSensor: resp[3]
-      calibratedHighSensorValue: resp[4]
-      calibratedHighSensorMs: resp[5]
-      _calibratedDurationMs: resp[6]
-    }
+    return JSON.parse(resp)
         
-  _handleError: (err, options) =>
+
+  _handleError: (err, port=null, options={}) =>
+    return unless err
     console.log('Error: ', err.message)
     options.error?(@, err)
-    port.close();
+    port?.close();
   
   
     

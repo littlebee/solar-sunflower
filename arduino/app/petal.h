@@ -36,7 +36,7 @@ public:
   
 private:
   int _petalId;
-  int _currentDirection;
+  int _direction;
   int _lastLightSensorValue;
   int _calibratedHighLightSensorValue;
   long _calibratedHighLightSensorMs;
