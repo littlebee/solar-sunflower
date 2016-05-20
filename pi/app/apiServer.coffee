@@ -16,6 +16,7 @@ server = Restify.createServer
 
     
 Petals = require './models/petals'
+petals = new Petals()
 
 requestCount = 0
 
@@ -46,18 +47,19 @@ server.get '/', (req, res, next) ->
   
   
 server.get '/petal', (req, res, next) ->
-  petals = new Petals()
   petals.fetch 
     success: ->
+      console.log "fetched #{petals.length} petals"
       res.send petals.models
       next()
     error: (collection, err) ->
       req.log.error err, "ERROR"
       return next(new restify.errors.InternalServerError(err))
   
-  
-  
 
 server.listen 8080, ->
   console.log '%s listening at %s', server.name, server.url
   return
+  
+  
+  

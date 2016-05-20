@@ -93,17 +93,8 @@ void Petal::printStatus() {
   // data.add(2.302038, 6);  // if not specified, 2 digits are printed
 
   root.printTo(Serial);
-  Serial.println();
-  
-  // serialPrintf("%d %s %d %d %d %ld %ld", 
-  //   _petalId,
-  //   PETAL_STATE_NAMES[_petalState], 
-  //   _direction, 
-  //   analogRead(LIGHT_SENSOR_PIN),
-  //   _calibratedHighLightSensorValue,
-  //   _calibratedHighLightSensorMs,
-  //   _calibratedDurationMs
-  // );
+  Serial.println();    // add newline 
+
 }
 
 boolean Petal::isMoving() {
