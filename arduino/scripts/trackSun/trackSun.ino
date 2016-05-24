@@ -32,7 +32,7 @@
 //STILL_TOLERANCE of g_lastInputValue
 #define STILL_TOLERANCE 2
 // move actuator until drop from max is less than
-#define SEEK_TOLERANCE 2
+#define PETAL_SEEKING_TOLERANCE 2
 
 // minimum number of milliseconds delay between sampling the ACS712
 // recommended in manufacturer sample source
@@ -146,7 +146,7 @@ boolean seekHighInput(int pin, int direction, int inputValue) {
 
     nextInputValue = analogRead(pin);
     serialPrintf("stillMoving=%d nextInputValue=%d", stillMoving, nextInputValue);
-    atMax = almostEqual(nextInputValue, maxInputValue, SEEK_TOLERANCE);
+    atMax = almostEqual(nextInputValue, maxInputValue, PETAL_SEEKING_TOLERANCE);
 
   } while (stillMoving && atMax);
 
