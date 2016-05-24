@@ -41,7 +41,7 @@ module.exports = (grunt, initConfig={}) ->
       buildArduino:
         command: 'cd arduino/app && make'
         
-      deployArduinos:
+      deployArduino:
         command: 'cd arduino/app && make upload'
         failOnError: false
 
@@ -63,11 +63,15 @@ module.exports = (grunt, initConfig={}) ->
       tasks:
         options:
           filter: 'include'
-          tasks: ['clean', 'build', 'deploy', 'watch']
+          tasks: ['clean', 'build', 'buildArduino', 'buildWeb', 'deploy', 'deployArduino', 'deployPi', 'watch']
           descriptions: 
-            clean: "Remove all compiled files. Use `grunt clean build` to rebuild everything from scratch"
+            clean: "Remove all compiled files."
             build: "Builds web app, REST service and arduino source"
+            buildArduino: "Just build the arduino sources"
+            buildWeb: "Just build the web app distribution"
             deploy: "Deploys app (rsync) to connected PI and arduino app to any connected arduinos"
+            deployArduino: "Deploy compiled arduino sources to all connected arduinos"
+            deployPi: "RemoteSync pi/sunflower to pi@192.168.1.1"
             watch: "Watch for changing files, builds and deploys them.  see scripts/watch for background watch " +
               "task used by Pi to automatically build and deploy arduino code to petal controllers"
             
@@ -78,9 +82,9 @@ module.exports = (grunt, initConfig={}) ->
         files: ["arduino/**/*.{ino,cpp,c,h}"]
         tasks: ["buildArduino"]
         
-      deployArduinos:
+      deployArduino:
         files: ["arduino/**/*.{o,hex}"]
-        tasks: ["deployArduinos"]
+        tasks: ["deployArduino"]
       
       buildWeb: 
         files: ["web/**/*"]
@@ -104,8 +108,8 @@ module.exports = (grunt, initConfig={}) ->
   grunt.registerTask 'buildWeb', ['webpack:distrib', 'webpack:optimize']
   grunt.registerTask 'buildArduino', ['shell:buildArduino']
   grunt.registerTask 'test', ["shell:test"]
-  grunt.registerTask 'deploy', ['forceOn', 'rsync', 'deployArduinos', 'forceOff'] 
-  grunt.registerTask 'deployArduinos', ['shell:deployArduinos']
+  grunt.registerTask 'deploy', ['forceOn', 'rsync', 'deployArduino', 'forceOff'] 
+  grunt.registerTask 'deployArduino', ['shell:deployArduino']
   # uses forceOn to downgrade failures in deploying to warnings 
   grunt.registerTask 'deployPi', ['forceOn', 'rsync', 'forceOff']   
   

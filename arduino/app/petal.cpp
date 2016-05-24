@@ -74,7 +74,7 @@ void Petal::setup() {
 // React front end.
 void Petal::printStatus() {
   StaticJsonBuffer<200> jsonBuffer;
-
+  
   JsonObject& root = jsonBuffer.createObject();
   root["petalId"] = _petalId;
   root["petalState"] = PETAL_STATE_NAMES[_petalState];
@@ -85,15 +85,16 @@ void Petal::printStatus() {
   root["calibratedHighLightSensorValue"] = _calibratedHighLightSensorValue;
   root["calibratedHighLightSensorMs"] = _calibratedHighLightSensorMs;
   root["calibratedDurationMs"] = _calibratedDurationMs;
+  root["freeRAM"] = freeRam();
   
   // TODO : maybe add some data logging and avg, min, max over time so the 
   //    api doesn't have to constantly call status?
   // JsonArray& data = root.createNestedArray("data");
   // data.add(48.756080, 6);  // 6 is the number of decimals to print
   // data.add(2.302038, 6);  // if not specified, 2 digits are printed
-
+  
   root.printTo(Serial);
-  Serial.println();    // add newline 
+  Serial.println("");    // add newline 
 
 }
 

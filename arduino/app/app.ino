@@ -1,10 +1,5 @@
 /*
-  This script moves an actuator until maximum analog input is
-  acheived.  While it's example application is to track a light source
-  with a solar cell that is attached to the end of the actuator, it
-  could be used to track maximum input of anything attached to the
-  LIGHT_SENSOR_PIN.  maybe like sound source tracking too?  :)
-
+  This is the main entry point for the arduino code of the Solar Sunflower Project
 */
 #define SERIALCOMMAND_HARDWAREONLY 1
 
@@ -13,37 +8,46 @@
 
 #include "util.h"
 #include "petal.h"
+#include "animationController.h"
 
 SerialCommand scm;
-Petal petal;
+Petal *ourPetal = NULL; // = new Petal();
+AnimationController *animationController = NULL; // = new AnimationController();
 
 void onCalibrate() {
-  petal.calibrate();
-  petal.printStatus();
+  ourPetal->calibrate();
+  ourPetal->printStatus();
 }
 
 void onSeek() {
-  petal.seek();
-  petal.printStatus();
+  ourPetal->seek();
+  ourPetal->printStatus();
 }
 
 void onHalt() {
-  petal.halt();
-  petal.printStatus();
+  animationController->halt();
+  ourPetal->halt();
+  ourPetal->printStatus();
 }
 
 void onStatus() {
-  petal.printStatus();
+  ourPetal->printStatus();
 }
 
 void onExtend() {
-  petal.moveToEnd(1);
-  petal.printStatus();
+  ourPetal->moveToEnd(1);
+  ourPetal->printStatus();
 }
 
 void onRetract() {
-  petal.moveToEnd(0);
-  petal.printStatus();
+  ourPetal->moveToEnd(0);
+  ourPetal->printStatus();
+}
+
+void onAnimate() {
+  animationController->animate();
+  ourPetal->printStatus();
+  
 }
 
 void onHelp() {
@@ -61,7 +65,6 @@ void onUnrecognized() {
 void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
-  petal.setup();
   
   // Setup callbacks for SerialCommand commands 
   scm.addCommand("calibrate", onCalibrate);       
@@ -70,14 +73,31 @@ void setup() {
   scm.addCommand("status", onStatus);
   scm.addCommand("extend", onExtend);
   scm.addCommand("retract", onRetract);
+  scm.addCommand("animate", onAnimate);
   scm.addCommand("help", onHelp);
   scm.addDefaultHandler(onUnrecognized);  
   
+  
+  if( ourPetal != NULL ) delete ourPetal;
+  ourPetal = new Petal();
+  ourPetal->setup();
+  
+  if( animationController != NULL ) delete animationController;
+  animationController = new AnimationController(ourPetal);
+  animationController->setup();
+  // 
+  // serialPrintf("app.ino setup ourPetal=%p", ourPetal);
+  // 
   Serial.println("ready");   
+  
 }
 
 // the loop routine runs over and over again forever:
 void loop() {
+  
   scm.readSerial(); 
-  petal.loop();
+  ourPetal->loop();
+  animationController->loop();
+  
+  
 }

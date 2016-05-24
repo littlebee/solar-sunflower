@@ -97,7 +97,10 @@ module.exports = class Petal extends Backbone.Model
         @drainQueue()
       else
         @set @parse(resp) 
-        @currentCmdObj.options?.success?(@, resp)
+        # so the node serialPort lib doesn't set the resource port
+        # as in use and another com port connection to this port, 
+        # like from the arduino serial port monitor, may
+        @currentCmdObj?.options?.success?(@, resp)
         @trigger 'sync', @
         # this has the effect of serializing all commands and responses and is 
         # probably not strictly needed.  Call _chainedDrain instead of drainQueue

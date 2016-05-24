@@ -257,10 +257,7 @@ rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst 
 # automatically determine sources and targeet
 TARGET := $(basename $(INOFILE))
 SOURCES := $(INOFILE) \
-	$(wildcard *.c *.cc *.cpp *.C) \
-	$(wildcard $(addprefix util/, *.c *.cc *.cpp *.C)) \
-	$(wildcard $(addprefix utility/, *.c *.cc *.cpp *.C)) \
-	$(call rwildcard, libraries/, *.c *.cc *.cpp *.C)
+	$(call rwildcard, ./, *.c *.cc *.cpp *.C)
 
 # automatically determine included libraries
 LIBRARIES ?= $(filter $(notdir $(wildcard $(addsuffix /*, $(LIBRARYPATH)))), \
