@@ -51,7 +51,10 @@ Petal::Petal() {
   _direction = EXTEND;
   _lastLightSensorValue = 0;
   _petalState = PETAL_HALTED;
+  _streamingInterval = 0;
+  _lastStreamedAt = 0;
   _petalId = 0;
+  
   for (int i = 0; i < 4; i++){
     int pinValue = digitalRead(DIP_SWITCH_PINS[i]);
     _petalId = ((_petalId << 1) & pinValue);
@@ -118,10 +121,11 @@ void Petal::stopActuator() {
 }
 
 void Petal::loop() {
+  streamLoop();
+
   if (isHalted()){
     return;
   }
-  
   if (_petalState == PETAL_SEEKING)
     seekLoop();
   else if (_petalState == PETAL_CALIBRATING)
@@ -282,5 +286,12 @@ void Petal::seekLoop() {
   _lastLightSensorValue = inputValue;
 }
 
+void Petal::streamLoop() {
+  //serialPrintf("streamLoop %ld", _streamingInterval);
+  if (!isStreaming()) return;
+  if (throttle(_streamingInterval, _lastStreamedAt)) return;
+  printStatus();
+  
+}
 
 

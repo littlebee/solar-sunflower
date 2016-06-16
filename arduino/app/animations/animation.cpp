@@ -14,13 +14,7 @@ Animation::Animation(Petal *pPetal,  Adafruit_WS2801 *pStrip)
 
 
 boolean Animation::_throttleLoop(unsigned long delay) {
-  unsigned long thisTick = millis();
-  if( thisTick - _lastLoopThrottledCall > delay ){
-    _lastLoopThrottledCall = thisTick;
-    return false;
-  }
-  return true;
-    
+  return throttle(delay, _lastLoopThrottledCall);
 }
 
 uint32_t Animation::color(byte r, byte g, byte b)
