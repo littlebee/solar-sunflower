@@ -50,6 +50,18 @@ void onAnimate() {
   
 }
 
+// not specifying an interval toggles streaming on and off
+void onStream() {
+  char *arg = scm.next();    // Get the next argument from the SerialCommand object buffer
+  unsigned long interval = 0;
+  if (arg == NULL )
+    interval = (ourPetal->isStreaming()) ? 0 : 250;
+  else 
+    interval = atol(arg); 
+  
+  ourPetal->stream(interval);
+}
+
 void onHelp() {
   SerialCommandCallback *commands = scm.getCommands();
   int numCommands = scm.getNumCommands();
@@ -71,9 +83,11 @@ void setup() {
   scm.addCommand("seek", onSeek);       
   scm.addCommand("halt", onHalt);  
   scm.addCommand("status", onStatus);
+  scm.addCommand("stream", onStream);
   scm.addCommand("extend", onExtend);
   scm.addCommand("retract", onRetract);
   scm.addCommand("animate", onAnimate);
+  
   scm.addCommand("help", onHelp);
   scm.addDefaultHandler(onUnrecognized);  
   
@@ -85,9 +99,7 @@ void setup() {
   if( animationController != NULL ) delete animationController;
   animationController = new AnimationController(ourPetal);
   animationController->setup();
-  // 
-  // serialPrintf("app.ino setup ourPetal=%p", ourPetal);
-  // 
+
   Serial.println("ready");   
   
 }

@@ -12,7 +12,7 @@ void serialPrintf(char const *format, ...) {
   Serial.println(serialPrintfBuffer);
 }
 
-boolean almostEqual(int a, int b, int tolerance) {
+bool almostEqual(int a, int b, int tolerance) {
   return a >= b - tolerance && a <= b + tolerance;
 }
 
@@ -24,3 +24,14 @@ int freeRam ()
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 
+// returns true if it has not been at least delay millis since last call 
+bool throttle(unsigned long delay, unsigned long &_lastCall)  {
+  unsigned long thisTick = millis();
+  // thisTick > _lastCall is either an error or integer wrap around
+  //serialPrintf("throttle %ld %ld %ld", delay, _lastCall, thisTick);
+  if (thisTick - _lastCall > delay || thisTick < _lastCall) {
+    _lastCall = thisTick;
+    return false;
+  }
+  return true;
+}

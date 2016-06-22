@@ -32,6 +32,12 @@ public:
   
   // Prints a one line status message to serial out
   void printStatus();
+  
+  // when on, printStatus is called once every interval milliseconds. 
+  // pass 0 to stop streaming
+  void stream(unsigned long interval=1000){ _streamingInterval = interval; };
+  // returns true if streaming
+  bool isStreaming(){ return _streamingInterval > 0; };
 
   void moveToEnd(int direction);
   
@@ -41,15 +47,21 @@ private:
   int _direction;
   int _lastLightSensorValue;
   int _calibratedHighLightSensorValue;
-  long _calibratedHighLightSensorMs;
-  long _calibratedDurationMs;
-  long _calibrationSamplingStartedMs;
+  unsigned long _calibratedHighLightSensorMs;
+  int _actualHighLightSensorValue;
+  unsigned long _actualHighLightSensorMs;
+  unsigned long _calibratedDurationMs;
+  unsigned long _calibrationSamplingStartedMs;
   PetalStates _petalState;
   CalibrationStages _calibrationStage; 
+  unsigned long _streamingInterval;
+  unsigned long _lastStreamedAt;
   
   void calibrateLoop();
   void moveToEndLoop();
   void seekLoop();
+  void streamLoop();
+  
   
   bool moveRelativeToCurrent(int direction, int mSeconds=0);
 
