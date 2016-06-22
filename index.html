@@ -14,14 +14,14 @@
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <title>Solar Sunflower</title>
+    <title>Flower Power</title>
   </head>
 
   <body>
     <header>
       <div class="inner">
-        <h1>Solar Sunflower</h1>
-        <h2>A solar generator in the form of a flower with articulated petals</h2>
+        <h1>Flower Power</h1>
+        <h2>A solar generator in the form of a flower with articulated petals and lit by 250 pixel LEDs</h2>
         <a href="https://github.com/littlebee/solar-sunflower" class="button"><small>View project on</small> GitHub</a>
       </div>
     </header>
@@ -32,40 +32,35 @@
           <h3>
 <a id="the-solar-sunflower-project---electric-sky-edition" class="anchor" href="#the-solar-sunflower-project---electric-sky-edition" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Solar Sunflower Project - Electric Sky Edition</h3>
 
-<p>The Solar Sunflower we are building for <a href="http://electricskyartcamp.com/">Electric Sky</a> is a 500 watt solar generator.  It stands 12' tall with five flower petals on top.  </p>
-
-<p>Each of the five petals have </p>
-
-<ul>
-<li>1 x 100 Watt Residential Solar Panel</li>
-<li>50 Pixel LEDs </li>
-<li>1 x 400 pound force linear actuator</li>
-<li>1 x Arduino Uno with...</li>
-<li>10A DC Motor Sheild </li>
-<li>2 ACS712 current sensors for measuring drain and supply current</li>
-</ul>
-<p><a href="https://docs.google.com/spreadsheets/d/1rGvrzk4yF3bm95bJCBhM_qjQ1ohDBbdtPF48eGcn67I/edit?usp=sharing">
-See Materials Spreadsheet</a> for more details.
+<p>
+  The Solar Sunflower we built for <a href="http://electricskyartcamp.com/">Electric Sky</a> is a 500 watt solar generator.  It stands 6.5" tall with five flower petals on top.  
+  Each petal is 5'2" long, 3' wide and weighs 48 pounds. The petals are hinged to circular head piece 3' in diameter.
 </p>
-<p>The Arduinos live in a common utility box (not pictured) at the base of the towers.  The five Arduino Unos communicate will communicate (slave) with a Raspberry PI (master) over I2C.  The Raspberry has a clock and a programmed cycle.  </p>
+<p>
+  The petals open and close.  Each petal has a linear force actuator that can move it up and down and is
+  independently controlled by a microprocessor.  The linear actuator moves the petals at a constant one inch per 
+  second velocity and has a 30 second end to end travel time.
+</p>
+<p>
+  In the morning the petals open and position themselves towards the sun. 
+  During the day the petals independently track the sun and charge a large battery.  At night, 
+  energy from the battery is used to animate the flower with movement and light provided by  
+  250 individually addressable pixel LEDs.
+</p>
 
-<p>In the morning (~8am) the Raspberry will instruct the petals to run a calibration sequence and analyze the results.  It will then instruct the petals to go into autonomous seek mode in which they will independently seek to the source of the most power being produced.    </p>
-
-<p>At dusk the Rasberry will instruct all petals to fully extend (close) and enter a rest period.</p>
-
-<p>At dark (~10) the flower will power up in display mode; open petals and run sequenced lighting through the 50 pixel LEDs on each petal.</p>
-
-<p>At midnight the flower will again close and go into rest.</p>
-
-<p>Cables run through the center of the tower.</p>
 
 <h6>More picture and Sketch Up Make files available on [github](https://github.com/littlebee/solar-sunflower) </h6>
-<i>click on an image to enlarge</i>
+
+<a href="docs/img/electricSkyDay.jpeg"><img src="docs/img/electricSkyDay.jpeg"/></a>
+<video width="500" height="300" muted="true" style="-moz-transform:rotate(90deg);transform:scale(1.8);position:absolute;left:700px;top:450px;width:300px;" autoplay="true" loop="true">
+  <source src="docs/img/electricSkyNight.MOV" type="video/mp4">
+  Sorry, Your browser does not support the video tag.
+</video> 
+
 <a href="docs/img/sunflower_e-sky__top_angle_with_dims.png"><img src="docs/img/sunflower_e-sky__top_angle_with_dims.png"/></a>
 <a href="docs/img/sunflower_e-sky_-_top_angle.png"><img src="docs/img/sunflower_e-sky_-_top_angle.png"/></a>
 <a href="docs/img/sunflower_e-sky_-_top_down.png"><img src="docs/img/sunflower_e-sky_-_top_down.png"/></a>
 <a href="docs/img/sunflower_e-sky_front_1.png"><img src="docs/img/sunflower_e-sky_front_1.png"/></a>
-<a href="docs/img/sunflower_one_-_petal_stages_2_jpg.png"><img src="docs/img/sunflower_one_-_petal_stages_2_jpg.png"/></a>
 <a href="docs/img/solarSunflowerWiringDiagram.png"><img src="docs/img/solarSunflowerWiringDiagram.png "/></a>
 
         </section>
