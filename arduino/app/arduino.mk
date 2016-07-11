@@ -169,14 +169,14 @@
 
 # default arduino software directory, check software exists
 ifndef ARDUINODIR
-ARDUINODIR := $(firstword $(wildcard ~/opt/arduino /usr/share/arduino \
-	/Applications/Arduino.app/Contents/Resources/Java \
-	/Applications/Arduino.app/Contents/Java \
-	$(HOME)/Applications/Arduino.app/Contents/Resources/Java))
+	ARDUINODIR := $(firstword $(wildcard ~/opt/arduino /usr/share/arduino \
+		/Applications/Arduino.app/Contents/Resources/Java \
+		/Applications/Arduino.app/Contents/Java \
+		$(HOME)/Applications/Arduino.app/Contents/Resources/Java))
 endif
-ifeq "$(wildcard $(ARDUINODIR)/hardware/arduino/avr/boards.txt)" ""
-	$(error ARDUINODIR is not set correctly; arduino software not found)
-endif
+# ifeq "$(wildcard $(ARDUINODIR)/hardware/arduino/avr/boards.txt)" ""
+# 	$(error ARDUINODIR is not set correctly; arduino software not found)
+# endif
 
 # default arduino version
 ARDUINOCONST ?= 100
@@ -201,11 +201,11 @@ endif
 
 # no board?
 ifndef BOARD
-ifneq "$(MAKECMDGOALS)" "boards"
-ifneq "$(MAKECMDGOALS)" "clean"
-$(error BOARD is unset.  Type 'make boards' to see possible values)
-endif
-endif
+	ifneq "$(MAKECMDGOALS)" "boards"
+		ifneq "$(MAKECMDGOALS)" "clean"
+			$(error BOARD is unset.  Type 'make boards' to see possible values)
+		endif
+	endif
 endif
 
 # obtain board parameters from the arduino boards.txt file
@@ -231,37 +231,37 @@ PREFERENCESFILE := $(firstword $(wildcard \
 	$(HOME)/.arduino/preferences.txt $(HOME)/Library/Arduino/preferences.txt \
 	$(ARDUINODIR)/lib/preferences.txt))
 ifneq "$(PREFERENCESFILE)" ""
-readpreferencesparam = $(shell sed -ne "s/$(1)=\(.*\)/\1/p" $(PREFERENCESFILE))
-SKETCHBOOKDIR := $(call readpreferencesparam,sketchbook.path)
+	readpreferencesparam = $(shell sed -ne "s/$(1)=\(.*\)/\1/p" $(PREFERENCESFILE))
+	SKETCHBOOKDIR := $(call readpreferencesparam,sketchbook.path)
 endif
 
 # invalid board?
-ifeq "$(BOARD_BUILD_MCU)" ""
-ifneq "$(MAKECMDGOALS)" "boards"
-ifneq "$(MAKECMDGOALS)" "clean"
-$(error BOARD is invalid.  Type 'make boards' to see possible values)
-endif
-endif
-endif
+# ifeq "$(BOARD_BUILD_MCU)" ""
+# 	ifneq "$(MAKECMDGOALS)" "boards"
+# 		ifneq "$(MAKECMDGOALS)" "clean"
+# 			$(error BOARD is invalid.  Type 'make boards' to see possible values)
+# 		endif
+# 	endif
+# endif
 
 # auto mode?
 INOFILE := $(wildcard *.ino *.pde)
 ifdef INOFILE
-ifneq "$(words $(INOFILE))" "1"
-$(error There is more than one .pde or .ino file in this directory!)
-endif
+	ifneq "$(words $(INOFILE))" "1"
+		$(error There is more than one .pde or .ino file in this directory!)
+		endif
 
-# recursive wildcard.  thanks [some guy on the internet](http://stackoverflow.com/questions/2483182/recursive-wildcards-in-gnu-make)
-rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+	# recursive wildcard.  thanks [some guy on the internet](http://stackoverflow.com/questions/2483182/recursive-wildcards-in-gnu-make)
+	rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
-# automatically determine sources and targeet
-TARGET := $(basename $(INOFILE))
-SOURCES := $(INOFILE) \
-	$(call rwildcard, ./, *.c *.cc *.cpp *.C)
+	# automatically determine sources and targeet
+	TARGET := $(basename $(INOFILE))
+	SOURCES := $(INOFILE) \
+		$(call rwildcard, ./, *.c *.cc *.cpp *.C)
 
-# automatically determine included libraries
-LIBRARIES ?= $(filter $(notdir $(wildcard $(addsuffix /*, $(LIBRARYPATH)))), \
-	$(shell sed -ne "s/^ *\# *include *[<\"]\(.*\)\.h[>\"]/\1/p" $(SOURCES)))
+	# automatically determine included libraries
+	LIBRARIES ?= $(filter $(notdir $(wildcard $(addsuffix /*, $(LIBRARYPATH)))), \
+		$(shell sed -ne "s/^ *\# *include *[<\"]\(.*\)\.h[>\"]/\1/p" $(SOURCES)))
 
 endif
 
@@ -298,11 +298,11 @@ BOOTLOADERHEX := $(addprefix \
 
 # avrdude confifuration
 ifeq "$(AVRDUDECONF)" ""
-ifeq "$(AVRDUDE)" "$(ARDUINODIR)/hardware/tools/avr/bin/avrdude"
-AVRDUDECONF := $(ARDUINODIR)/hardware/tools/avr/etc/avrdude.conf
-else
-AVRDUDECONF := $(wildcard $(AVRDUDE).conf)
-endif
+	ifeq "$(AVRDUDE)" "$(ARDUINODIR)/hardware/tools/avr/bin/avrdude"
+		AVRDUDECONF := $(ARDUINODIR)/hardware/tools/avr/etc/avrdude.conf
+	else
+		AVRDUDECONF := $(wildcard $(AVRDUDE).conf)
+	endif
 endif
 
 # $(warning LIBRARYPATH: $(LIBRARYPATH));
@@ -331,7 +331,7 @@ STTYFARG := $(shell stty --help 2>&1 | \
 
 # include dependencies
 ifneq "$(MAKECMDGOALS)" "clean"
--include $(DEPFILES)
+	-include $(DEPFILES)
 endif
 
 # default rule
@@ -359,7 +359,7 @@ ifeq "$(BOARD_BOOTLOADER_PATH)" "caterina"
 	stty $(STTYFARG) $(SERIALDEV) speed 1200
 	sleep 1
 endif
-	
+		
 ifdef SERIALDEVS
 	$(foreach dev, $(SERIALDEVS), $(shell $(AVRDUDE) $(AVRDUDEFLAGS) -P $(dev) -U flash:w:$(TARGET).hex:i))
 else 
@@ -404,12 +404,12 @@ bootloader:
 	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U lock:w:$(BOARD_BOOTLOADER_UNLOCK):m
 	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -eU lfuse:w:$(BOARD_BOOTLOADER_LFUSES):m
 	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U hfuse:w:$(BOARD_BOOTLOADER_HFUSES):m
-ifneq "$(BOARD_BOOTLOADER_EFUSES)" ""
-	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U efuse:w:$(BOARD_BOOTLOADER_EFUSES):m
-endif
-ifneq "$(BOOTLOADERHEX)" ""
-	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U flash:w:$(BOOTLOADERHEX):i
-endif
+	ifneq "$(BOARD_BOOTLOADER_EFUSES)" ""
+		$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U efuse:w:$(BOARD_BOOTLOADER_EFUSES):m
+	endif
+	ifneq "$(BOOTLOADERHEX)" ""
+		$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U flash:w:$(BOOTLOADERHEX):i
+	endif
 	$(AVRDUDE) $(AVRDUDEFLAGS) -P $(SERIALDEV) -U lock:w:$(BOARD_BOOTLOADER_LOCK):m
 
 # building the target
