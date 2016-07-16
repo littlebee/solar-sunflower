@@ -9,7 +9,10 @@
 ###
 module.exports = class IndexView extends React.Component
   @displayName: "sunflower.IndexView"
+  
+  
   render: ->
     <div style={fontSize: 30}>"I am.  I always have been."</div>
     
     
+  

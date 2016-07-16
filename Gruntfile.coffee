@@ -44,7 +44,13 @@ module.exports = (grunt, initConfig={}) ->
       deployArduino:
         command: 'cd arduino/app && make upload'
         failOnError: false
-
+        
+      piPostDeploy:
+        # running npm install takes a while and because of it's silly ascii animation
+        # gives no feedback via ssh while running. 
+        # command: 'ssh pi@192.168.2.1 "cd /home/pi/sunflower && npm install"'
+        command: 'ssh pi@192.168.2.1 "cd /home/pi/sunflower && scripts/piPostDeploy"'
+        
 
     rsync: 
       options: 
@@ -108,10 +114,10 @@ module.exports = (grunt, initConfig={}) ->
   grunt.registerTask 'buildWeb', ['webpack:distrib', 'webpack:optimize']
   grunt.registerTask 'buildArduino', ['shell:buildArduino']
   grunt.registerTask 'test', ["shell:test"]
-  grunt.registerTask 'deploy', ['forceOn', 'rsync', 'deployArduino', 'forceOff'] 
-  grunt.registerTask 'deployArduino', ['shell:deployArduino']
   # uses forceOn to downgrade failures in deploying to warnings 
-  grunt.registerTask 'deployPi', ['forceOn', 'rsync', 'forceOff']   
+  grunt.registerTask 'deploy', ['forceOn', 'deployPi', 'deployArduino', 'forceOff'] 
+  grunt.registerTask 'deployArduino', ['shell:deployArduino']
+  grunt.registerTask 'deployPi', ['rsync', 'shell:piPostDeploy']   
   
   grunt.registerTask 'default', ['availabletasks']
   

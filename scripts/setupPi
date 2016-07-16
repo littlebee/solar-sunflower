@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x #echo on
 
 #
 # This script is run from the project root directory in a bash shell on your development 

@@ -1,5 +1,5 @@
 
-### pi/ directory
+### api/ directory
 
 The application running on the raspberry pi for the solar sunflower project has the 
 following reponsibilities:
