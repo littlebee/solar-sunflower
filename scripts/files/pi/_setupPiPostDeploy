@@ -4,12 +4,21 @@
 # which you hopefully only need to run once.
 #
 
+FILES_DIR=/home/pi/sunflower/scripts/files/pi
+
 set -x #echo on
 
 sudo rm -Rf /etc/nginx/nginx.conf
-sudo ln -sf /home/pi/sunflower/scripts/files/pi/nginx.conf /etc/nginx
+sudo ln -sf $FILES_DIR/nginx.conf /etc/nginx
 sudo /etc/init.d/nginx restart
 
 cd /home/pi/sunflower
 npm install
 
+# Install our API service and start it
+sudo chmod +x /home/pi/sunflower/api/apiServer.coffee 
+sudo ln -sf $FILES_DIR/apiServer_init_d /etc/init.d/sunflower-api 
+sudo touch /var/log/sunflower-api.log
+sudo chown pi /var/log/sunflower-api.log
+sudo update-rc.d sunflower-api defaults
+sudo /etc/init.d/sunflower-api restart
