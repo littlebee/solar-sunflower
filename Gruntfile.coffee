@@ -54,7 +54,7 @@ module.exports = (grunt, initConfig={}) ->
       pi: 
         options: 
           src: "./",
-          dest: "pi@192.168.1.1:/home/pi/sunflower",
+          dest: "pi@192.168.2.1:/home/pi/sunflower",
           ssh: true,
         recursive: true
 
