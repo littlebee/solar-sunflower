@@ -15,7 +15,7 @@ server = Restify.createServer
   log: log
 
     
-Petals = require './models/petals'
+Petals = require './app/models/petals'
 petals = new Petals()
 
 requestCount = 0

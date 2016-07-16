@@ -10,16 +10,24 @@ set -x #echo on
 # and add your ssh key to the /home/pi/.ssh/authorized_keys file.  You will also need to 
 # configure a route from the pi to the internet. 
 #
-# This script really just uploads ./setupFiles/_setupPi and executes over ssh
+# This script really just uploads ./files/pi/_setupPi* and executes over ssh
 # All of the real work is done there. If you are having problems with ssh or scp
 # working / connecting to your pi but you're able to use the shell some other way
-# or use ftp to the pi, you can upload the ./setupFiles/_setupPi to the /home/pi
+# or use ftp to the pi, you can upload the ./files/pi/_setupPi to the /home/pi
 # directory and execute it there. 
+#
+# You should only need to run this script once, but it should be safe to run 
+# again as needed to fix the config of the pi
 
-scp scripts/setupFiles/_setupPi* pi@192.168.2.1:/home/pi
+# copy to home because /home/pi/sunflower may not yet exist if this is a fresh pi
+scp scripts/files/pi/_setupPi* pi@192.168.2.1:/home/pi
+
 ssh pi@192.168.2.1 "cd /home/pi && chmod +x ./_setupPi* && ./_setupPi"
+
+# this is our local command that you can run at any time to rsync the
+# app dir on the pi at /home/pi/sunflower
 grunt build deployPi
 
 # post deploy tasks
-ssh pi@192.168.2.1 "cd /home/pi && ./_setupPiPostDeploy
+ssh pi@192.168.2.1 "cd /home/pi && ./_setupPiPostDeploy"
 

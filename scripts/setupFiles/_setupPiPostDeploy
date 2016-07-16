@@ -1,9 +1,0 @@
-set -x #echo on
-
-sudo rm -Rf /etc/nginx/nginx.conf
-sudo ln -sf /home/pi/sunflower/scripts/setupFiles/nginx.conf /etc/nginx
-sudo /etc/init.d/nginx restart
-
-cd /home/pi/sunflower
-npm install
-

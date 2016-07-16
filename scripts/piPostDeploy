@@ -1,4 +1,18 @@
 #!/bin/bash
+
+#
+# This script is called after each deploy to the pi. 
+# 
+
 set -x #echo on
 
-echo "Ok, post deploy done."
+cd /home/pi/sunflower
+
+#  this is not really usuable over ssh command because of
+#  its silly ascii spinner, no ouput is given until it finishes
+#  and you are left wondering if it's stuck.  npm install can 
+#  take a while to run, even with minimal work to do, on the pi 
+#npm install
+
+
+# "Ok, post deploy done."

@@ -1,0 +1,15 @@
+
+#
+# This script is run after the deploy, but only from scripts/setupPi
+# which you hopefully only need to run once.
+#
+
+set -x #echo on
+
+sudo rm -Rf /etc/nginx/nginx.conf
+sudo ln -sf /home/pi/sunflower/scripts/files/pi/nginx.conf /etc/nginx
+sudo /etc/init.d/nginx restart
+
+cd /home/pi/sunflower
+npm install
+
