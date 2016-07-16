@@ -1,0 +1,46 @@
+#!/bin/sh
+set -x #echo on
+
+# RUN ME ON THE RASPBERRY PI logged in as user pi, from the home dir
+
+# enable ssh,  add your public key to authorized keys for passwordless login as user pi 
+if [ ! -d ".ssh" ]; then
+  mkdir -p .ssh
+  echo '' > .ssh/authorized_keys
+  chmod 700 .ssh; chmod 640 .ssh/authorized_keys
+fi
+
+if [ ! -d "sunflower" ]; then
+  mkdir sunflower
+fi
+
+sudo apt-get update
+sudo apt-get -y install vim
+sudo apt-get -y install nginx 
+sudo apt-get -y install locate
+
+sudo updatedb
+
+
+# wget https://downloads.arduino.cc/arduino-1.6.9-linuxarm.tar.xz
+# tar -xf arduino-1.6.9-linuxarm.tar.xz
+# rm -f arduino-1.6.9-linuxarm.tar.xz
+# sudo rm -Rf /usr/share/arduino-1.6.9
+# sudo rm -Rf /usr/share/arduino
+# sudo mv arduino-1.6.9 /usr/share
+# sudo chown -R root:root /usr/share/arduino-1.6.9
+# sudo ln -s /usr/share/arduino-1.6.9 /usr/share/arduino
+# 
+# 
+# # setup nodejs
+# wget https://nodejs.org/download/release/latest-v6.x/node-v6.1.0-linux-armv7l.tar.gz
+# tar -xvf node-v6.1.0-linux-armv7l.tar.gz
+# rm -f node-v6.1.0-linux-armv7l.tar.gz
+# sudo cp -R node-v6.1.0-linux-armv7l/* /usr/local/
+# rm -Rf node-v6.1.0-linux-armv7l/
+# node -v
+# npm --version
+# 
+# sudo npm install -g grunt-cli coffee-script
+
+

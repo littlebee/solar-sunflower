@@ -25,8 +25,8 @@ module.exports =
   output:
     path: "web/dist/"
     filename: "sunflower.js"
-    libraryTarget: "umd"
-    library: "sunflower"
+    libraryTarget: "var"
+    library: "Sunflower"
     publicPath: "web/dist/"
   externals: [
     {

@@ -1,15 +1,15 @@
 
 
-React = require('react')
+#React = require('react')
 
 ###
   This is the main view component for the solar sunflower web UI.
   
   This is also the file that webpack points at for dependencies 
 ###
-class IndexView extends React.Component
-  
+module.exports = class IndexView extends React.Component
+  @displayName: "sunflower.IndexView"
   render: ->
-    "I am.  I always have been."
+    <div style={fontSize: 30}>"I am.  I always have been."</div>
     
     

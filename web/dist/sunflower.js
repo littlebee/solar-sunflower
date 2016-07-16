@@ -1,14 +1,5 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("react"));
-	else if(typeof define === 'function' && define.amd)
-		define(["react"], factory);
-	else if(typeof exports === 'object')
-		exports["sunflower"] = factory(require("react"));
-	else
-		root["sunflower"] = factory(root["React"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__) {
-return /******/ (function(modules) { // webpackBootstrap
+var Sunflower =
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 
@@ -59,30 +50,33 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var IndexView, React,
-	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-	  hasProp = {}.hasOwnProperty;
-
-	React = __webpack_require__(2);
-
-
+	
 	/*
 	  This is the main view component for the solar sunflower web UI.
 	  
 	  This is also the file that webpack points at for dependencies
 	 */
+	var IndexView,
+	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+	  hasProp = {}.hasOwnProperty;
 
-	IndexView = (function(superClass) {
+	module.exports = IndexView = (function(superClass) {
 	  extend(IndexView, superClass);
 
 	  function IndexView() {
 	    return IndexView.__super__.constructor.apply(this, arguments);
 	  }
 
+	  IndexView.displayName = "sunflower.IndexView";
+
 	  IndexView.prototype.render = function() {
-	    return "I am.  I always have been.";
+	    return React.createElement("div", {
+	      "style": {
+	        fontSize: 30
+	      }
+	    }, "\"I am.  I always have been.\"");
 	  };
 
 	  return IndexView;
@@ -90,13 +84,5 @@ return /******/ (function(modules) { // webpackBootstrap
 	})(React.Component);
 
 
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
-
 /***/ }
-/******/ ])
-});
-;
+/******/ ]);
