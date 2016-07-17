@@ -48,8 +48,8 @@ module.exports = (grunt, initConfig={}) ->
       piPostDeploy:
         # running npm install takes a while and because of it's silly ascii animation
         # gives no feedback via ssh while running. 
-        # command: 'ssh pi@192.168.2.1 "cd /home/pi/sunflower && npm install"'
-        command: 'ssh pi@192.168.2.1 "cd /home/pi/sunflower && scripts/piPostDeploy"'
+        # command: 'ssh pi@192.168.2.2 "cd /home/pi/sunflower && npm install"'
+        command: 'ssh pi@192.168.2.2 "cd /home/pi/sunflower && scripts/piPostDeploy"'
         
 
     rsync: 
@@ -58,9 +58,9 @@ module.exports = (grunt, initConfig={}) ->
         exclude: [".git*","*.scss","node_modules"],
         recursive: true
       pi: 
-        options: 
+        options:  
           src: "./",
-          dest: "pi@192.168.2.1:/home/pi/sunflower",
+          dest: "pi@192.168.2.2:/home/pi/sunflower",
           ssh: true,
         recursive: true
 

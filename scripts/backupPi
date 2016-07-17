@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -x #echo on
+
+# 
+# This script uses dd to create an image in the ../ directory.  
+# I put it in that directory to avoid uploading it to the Pi as everything
+# in the project root does.  
+#
+# Run this from the project root dir
+
+sudo dd bs=1m if=/dev/rdisk2 of=../sunflowerPiImage.img
+cd ..
+gzip sunflowerPiImage.img

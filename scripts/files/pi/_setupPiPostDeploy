@@ -47,6 +47,10 @@ sudo chmod 755 /usr/sbin/hostapd
 ###
 
 sudo ln -sf $FILES_DIR/etc/dhcp/dhcpd.conf /etc/dhcp/
+sudo ln -sf $FILES_DIR/etc/dhcpcd.conf /etc/
+
+sudo ln -sf $FILES_DIR/etc/resolv.conf /etc/
+
 
 chmod +x $FILES_DIR/etc/default/isc-dhcp-server
 sudo ln -sf $FILES_DIR/etc/default/isc-dhcp-server /etc/default
