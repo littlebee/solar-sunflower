@@ -22,7 +22,7 @@ set -x #echo on
 # copy to home because /home/pi/sunflower may not yet exist if this is a fresh pi
 scp scripts/files/pi/_setupPi* pi@192.168.2.1:/home/pi
 
-ssh pi@192.168.2.1 "cd /home/pi && chmod +x ./_setupPi* && ./_setupPi"
+# ssh pi@192.168.2.1 "cd /home/pi && chmod +x ./_setupPi* && ./_setupPi"
 
 # this is our local command that you can run at any time to rsync the
 # app dir on the pi at /home/pi/sunflower

@@ -54,6 +54,10 @@ Petal::Petal() {
   _streamingInterval = 0;
   _lastStreamedAt = 0;
   _petalId = 0;
+  _calibratedHighLightSensorValue = 0;
+  _calibratedHighLightSensorMs = 0;
+  _calibratedDurationMs = 0;
+  
   
   for (int i = 0; i < 4; i++){
     int pinValue = digitalRead(DIP_SWITCH_PINS[i]);
@@ -84,7 +88,6 @@ void Petal::printStatus() {
   root["solarSensorValue"] = analogRead(LIGHT_SENSOR_PIN);
   root["actuatorSensorValue"] = analogRead(ACTUATOR_AMP_SENSOR_PIN);
   
-  root["direction"] = _direction; 
   root["calibratedHighLightSensorValue"] = _calibratedHighLightSensorValue;
   root["calibratedHighLightSensorMs"] = _calibratedHighLightSensorMs;
   root["calibratedDurationMs"] = _calibratedDurationMs;

@@ -9,16 +9,58 @@ FILES_DIR=/home/pi/sunflower/scripts/files/pi
 set -x #echo on
 
 sudo rm -Rf /etc/nginx/nginx.conf
-sudo ln -sf $FILES_DIR/nginx.conf /etc/nginx
+sudo ln -sf $FILES_DIR/etc/nginx/nginx.conf /etc/nginx/
 sudo /etc/init.d/nginx restart
 
 cd /home/pi/sunflower
-npm install
+# npm install
 
 # Install our API service and start it
 sudo chmod +x /home/pi/sunflower/api/apiServer.coffee 
-sudo ln -sf $FILES_DIR/apiServer_init_d /etc/init.d/sunflower-api 
+sudo chmod +x $FILES_DIR/etc/init.d/sunflower-api 
+sudo ln -sf $FILES_DIR/etc/init.d/sunflower-api /etc/init.d/ 
 sudo touch /var/log/sunflower-api.log
 sudo chown pi /var/log/sunflower-api.log
 sudo update-rc.d sunflower-api defaults
 sudo /etc/init.d/sunflower-api restart
+
+# Setup captive Wifi hotspot
+#sudo apt-get -y install bridge-utils hostapd
+# sudo apt-get install hostapd isc-dhcp-server  
+
+### this block is only needed for edimax usb wifi adapter
+# wget http://www.daveconroy.com/wp3/wp-content/uploads/2013/07/hostapd.zip
+# unzip hostapd.zip 
+# sudo mv /usr/sbin/hostapd /usr/sbin/hostapd.bak
+# sudo mv hostapd /usr/sbin/hostapd.edimax 
+# sudo ln -sf /usr/sbin/hostapd.edimax /usr/sbin/hostapd 
+# sudo chown root.root /usr/sbin/hostapd 
+# sudo chmod 755 /usr/sbin/hostapd
+###
+
+### this block is only needed for edimax usb wifi adapter
+# wget http://adafruit-download.s3.amazonaws.com/adafruit_hostapd_14128.zip
+# unzip adafruit_hostapd_14128.zip
+sudo mv /usr/sbin/hostapd /usr/sbin/hostapd.ORIG
+sudo cp /home/pi/hostapd /usr/sbin
+sudo chmod 755 /usr/sbin/hostapd
+###
+
+sudo ln -sf $FILES_DIR/etc/dhcp/dhcpd.conf /etc/dhcp/
+
+chmod +x $FILES_DIR/etc/default/isc-dhcp-server
+sudo ln -sf $FILES_DIR/etc/default/isc-dhcp-server /etc/default
+
+sudo ln -sf $FILES_DIR/etc/network/interfaces /etc/network/
+sudo ln -sf $FILES_DIR/etc/hostapd/hostapd.conf /etc/hostapd/
+sudo ln -sf $FILES_DIR/etc/default/hostapd /etc/default/
+
+sudo ln -sf $FILES_DIR/etc/sysctl.conf /etc
+sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
+sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
+
+
+sudo reboot
