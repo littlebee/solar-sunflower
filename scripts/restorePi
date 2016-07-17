@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -x
+
+gunzip -c ../sunflowerPiImage.img.gz | sudo dd bs=1m of=/dev/rdisk2   
