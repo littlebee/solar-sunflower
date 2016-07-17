@@ -92,11 +92,11 @@ module.exports = (grunt, initConfig={}) ->
     
     watch:
       buildArduino:
-        files: ["arduino/**/*.{ino,cpp,c,h}"]
+        files: ["arduino/**/*.ino", "arduino/**/*.cpp", "arduino/**/*.c", "arduino/**/*.h"]
         tasks: ["buildArduino"]
         
       deployArduino:
-        files: ["arduino/**/*.{o,hex}"]
+        files: ["arduino/**/*.o", "arduino/**/*.hex}"]
         tasks: ["deployArduino"]
       
       buildWeb: 

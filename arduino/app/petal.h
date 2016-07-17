@@ -36,6 +36,7 @@ public:
   // when on, printStatus is called once every interval milliseconds. 
   // pass 0 to stop streaming
   void stream(unsigned long interval=1000){ _streamingInterval = interval; };
+  
   // returns true if streaming
   bool isStreaming(){ return _streamingInterval > 0; };
 

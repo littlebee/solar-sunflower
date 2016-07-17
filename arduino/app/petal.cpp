@@ -45,7 +45,7 @@
 #define SAMPLING_DELAY 1
 
 static const char* PETAL_STATE_NAMES[] = {"HALTED", "CALIBRATING", "SEEKING", "MOVING"};
-static int DIP_SWITCH_PINS[] = {8,9,10,11};
+static int DIP_SWITCH_PINS[] = {4,5,6,7};
 
 Petal::Petal() {
   _direction = EXTEND;
@@ -58,11 +58,6 @@ Petal::Petal() {
   _calibratedHighLightSensorMs = 0;
   _calibratedDurationMs = 0;
   
-  
-  for (int i = 0; i < 4; i++){
-    int pinValue = digitalRead(DIP_SWITCH_PINS[i]);
-    _petalId = ((_petalId << 1) & pinValue);
-  }
 }
 
 void Petal::setup() {
@@ -71,7 +66,12 @@ void Petal::setup() {
 
   pinMode(ACTUATOR_AMP_SENSOR_PIN, INPUT);
   pinMode(LIGHT_SENSOR_PIN, INPUT);
-  
+
+  for (int i = 0; i < 4; i++){
+    pinMode(DIP_SWITCH_PINS[i], INPUT);
+    int pinValue = digitalRead(DIP_SWITCH_PINS[i]);
+    _petalId = ((_petalId << 1) | pinValue);
+  }
 }
 
 // using JSON may be a little overkill, but it allows you to 
@@ -112,6 +112,7 @@ boolean Petal::isMoving() {
 void Petal::halt() {
   stopActuator();
   _petalState = PETAL_HALTED;
+  _streamingInterval = 0;
 }
 
 boolean Petal::isHalted() {
