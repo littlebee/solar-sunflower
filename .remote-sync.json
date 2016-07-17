@@ -1,6 +1,6 @@
 {
   "transport": "scp",
-  "hostname": "192.168.2.1",
+  "hostname": "192.168.2.2",
   "username": "pi",
   "target": "/home/pi/sunflower",
   "ignore": [

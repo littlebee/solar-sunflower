@@ -92,7 +92,7 @@ module.exports = class Petal extends Backbone.Model
     # on the serial port that tells us it's reset and ready
     @port.on 'data', (resp) =>
       console.log "response from arduino", resp
-      if Bstr.weaklyEqual(resp, "ready")
+      if resp.match /ready/i
         @ready = true
         @drainQueue()
       else

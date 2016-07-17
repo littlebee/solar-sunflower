@@ -52,6 +52,12 @@ module.exports = (grunt, initConfig={}) ->
         # command: 'ssh pi@PI_ADDRESS "cd /home/pi/sunflower && npm install"'
         command: "ssh pi@#{PI_ADDRESS} \"cd /home/pi/sunflower && scripts/piPostDeploy\""
         
+      stopApiService: 
+        command: "sudo /etc/init.d/sunflower-api stop"
+        
+      startApiService: 
+        command: "sudo /etc/init.d/sunflower-api start"
+        
 
     rsync: 
       options: 
@@ -117,8 +123,23 @@ module.exports = (grunt, initConfig={}) ->
   grunt.registerTask 'test', ["shell:test"]
   # uses forceOn to downgrade failures in deploying to warnings 
   grunt.registerTask 'deploy', ['forceOn', 'deployPi', 'deployArduino', 'forceOff'] 
-  grunt.registerTask 'deployArduino', ['shell:deployArduino']
-  grunt.registerTask 'deployPi', ['rsync', 'shell:piPostDeploy']   
+  
+  
+  grunt.registerTask 'deployArduino', 'deploys all arduino bins to all connected arduinos', ->
+    console.log "This may fail / warn if no arduinos are connected, and that's okay."
+    
+    # you have to stop the service which keeps an open connection to arduinos or else they 
+    # reset on each connection.
+    grunt.task.run 'shell:stopApiService' if process.env.USER == "pi"
+    grunt.task.run 'shell:deployArduino'
+    grunt.task.run 'shell:startApiService' if process.env.USER == "pi"
+    
+  grunt.registerTask 'deployPi', 'deploys code to the Raspberry Pi unless running on the pi itself', ->
+    if process.env.USER == "pi"
+      console.log "deployPi task can't be run on the pi itself, that's insanity. "
+      return false;
+    grunt.task.run ['rsync', 'shell:piPostDeploy']       
+    
   
   grunt.registerTask 'default', ['availabletasks']
   
@@ -127,6 +148,7 @@ module.exports = (grunt, initConfig={}) ->
   grunt.registerTask 'forceOff', 'Forces the force flag off', ->
     grunt.option 'force', false
     return 
+    
 
 
   grunt.registerTask 'forceOn', 'Forces the force flag on', ->
