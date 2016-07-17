@@ -3,6 +3,9 @@
 # This script is run after the deploy, but only from scripts/setupPi
 # which you hopefully only need to run once.
 #
+# ref: 
+# - https://galem.wordpress.com/2014/10/14/configuring-the-raspberry-pi-to-share-a-macs-internet-connection/
+# - https://learn.adafruit.com/setting-up-a-raspberry-pi-as-a-wifi-access-point/install-software
 
 FILES_DIR=/home/pi/sunflower/scripts/files/pi
 
@@ -13,7 +16,7 @@ sudo ln -sf $FILES_DIR/etc/nginx/nginx.conf /etc/nginx/
 sudo /etc/init.d/nginx restart
 
 cd /home/pi/sunflower
-# npm install
+npm install
 
 # Install our API service and start it
 sudo chmod +x /home/pi/sunflower/api/apiServer.coffee 
@@ -26,7 +29,8 @@ sudo /etc/init.d/sunflower-api restart
 
 # Setup captive Wifi hotspot
 #sudo apt-get -y install bridge-utils hostapd
-# sudo apt-get install hostapd isc-dhcp-server  
+
+sudo apt-get install hostapd isc-dhcp-server  
 
 ### this block is only needed for edimax usb wifi adapter
 # wget http://www.daveconroy.com/wp3/wp-content/uploads/2013/07/hostapd.zip
@@ -39,8 +43,8 @@ sudo /etc/init.d/sunflower-api restart
 ###
 
 ### this block is only needed for edimax usb wifi adapter
-# wget http://adafruit-download.s3.amazonaws.com/adafruit_hostapd_14128.zip
-# unzip adafruit_hostapd_14128.zip
+wget http://adafruit-download.s3.amazonaws.com/adafruit_hostapd_14128.zip
+unzip adafruit_hostapd_14128.zip
 sudo mv /usr/sbin/hostapd /usr/sbin/hostapd.ORIG
 sudo cp /home/pi/hostapd /usr/sbin
 sudo chmod 755 /usr/sbin/hostapd

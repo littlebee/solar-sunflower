@@ -9,6 +9,4 @@ set -x #echo on
 #
 # Run this from the project root dir
 
-sudo dd bs=1m if=/dev/rdisk2 of=../sunflowerPiImage.img
-cd ..
-gzip sunflowerPiImage.img
+sudo dd bs=1m if=/dev/rdisk2 | gzip -c  > ../sunflowerPiImage.img.gz

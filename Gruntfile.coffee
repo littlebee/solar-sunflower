@@ -13,6 +13,7 @@ BUMBLE_DOCS_SCRIPTS = './node_modules/bumble-docs/bin/'
 bumbleScriptCommand = (scriptFile, args="")-> 
   return "coffee #{Path.join(BUMBLE_DOCS_SCRIPTS, scriptFile)} #{args}"
 
+PI_ADDRESS = "192.168.2.2"
 
 module.exports = (grunt, initConfig={}) ->
   
@@ -48,8 +49,8 @@ module.exports = (grunt, initConfig={}) ->
       piPostDeploy:
         # running npm install takes a while and because of it's silly ascii animation
         # gives no feedback via ssh while running. 
-        # command: 'ssh pi@192.168.2.2 "cd /home/pi/sunflower && npm install"'
-        command: 'ssh pi@192.168.2.2 "cd /home/pi/sunflower && scripts/piPostDeploy"'
+        # command: 'ssh pi@PI_ADDRESS "cd /home/pi/sunflower && npm install"'
+        command: "ssh pi@#{PI_ADDRESS} \"cd /home/pi/sunflower && scripts/piPostDeploy\""
         
 
     rsync: 
@@ -60,7 +61,7 @@ module.exports = (grunt, initConfig={}) ->
       pi: 
         options:  
           src: "./",
-          dest: "pi@192.168.2.2:/home/pi/sunflower",
+          dest: "pi@#{PI_ADDRESS}:/home/pi/sunflower",
           ssh: true,
         recursive: true
 

@@ -1,6 +1,8 @@
 #!/bin/sh
 set -x #echo on
 
+PI_ADDRESS=192.168.2.2
+
 #
 # This script is run from the project root directory in a bash shell on your development 
 # machine with the pi connected to it's standard (okay, really more hardcoded due to 
@@ -20,14 +22,15 @@ set -x #echo on
 # again as needed to fix the config of the pi
 
 # copy to home because /home/pi/sunflower may not yet exist if this is a fresh pi
-scp scripts/files/pi/_setupPi* pi@192.168.2.2:/home/pi
+scp scripts/files/pi/_setupPi* pi@$PI_ADDRESS:/home/pi
 
-# ssh pi@192.168.2.2 "cd /home/pi && chmod +x ./_setupPi* && ./_setupPi"
+# UNCOMMENT ME  - commented out to make faster debugging later parts
+ssh pi@$PI_ADDRESS "cd /home/pi && chmod +x ./_setupPi* && ./_setupPi"
 
 # this is our local command that you can run at any time to rsync the
 # app dir on the pi at /home/pi/sunflower
 grunt build deployPi
 
 # post deploy tasks
-ssh pi@192.168.2.2 "cd /home/pi && ./_setupPiPostDeploy"
+ssh pi@$PI_ADDRESS "cd /home/pi && ./_setupPiPostDeploy"
 
