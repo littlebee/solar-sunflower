@@ -62,6 +62,18 @@ void onStream() {
   ourPetal->stream(interval);
 }
 
+// not specifying an interval toggles streaming on and off
+void onPosition() {
+  char *arg = scm.next();    // Get the next argument from the SerialCommand object buffer
+  unsigned int position = 0;
+  if (arg != NULL ){
+    position = atoi(arg); 
+    ourPetal->moveToPosition(position);
+  }
+  return ourPetal->printStatus();
+    
+}
+
 void onHelp() {
   SerialCommandCallback *commands = scm.getCommands();
   int numCommands = scm.getNumCommands();
@@ -86,6 +98,7 @@ void setup() {
   scm.addCommand("stream", onStream);
   scm.addCommand("extend", onExtend);
   scm.addCommand("retract", onRetract);
+  scm.addCommand("position", onPosition);
   scm.addCommand("animate", onAnimate);
   
   scm.addCommand("help", onHelp);

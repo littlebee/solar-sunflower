@@ -13,11 +13,22 @@
 #include "petal.h"
 #include "util.h"
 
-#define ACTUATOR_AMP_SENSOR_PIN A5
+#define ACTUATOR_AMP_SENSOR_PIN A2
 #define ACTUATOR_PWM_PIN 11
 #define ACTUATOR_DIR_PIN 12
-#define LIGHT_SENSOR_PIN A2
+#define LIGHT_SENSOR_PIN A5
 
+// the actuators calibrated duration is between 26 and 27 seconds
+#define MAX_DURATION_MS 30000
+#define FULLY_EXTENDED MAX_DURATION_MS
+#define FULLY_RETRACTED 0
+
+
+// this is the difference to ignore in requests to move to an absolute
+// or relative location. we cant really precisely position, because we
+// have to yeild and the loop frequency might be longer than our diff in
+// actual vs requested position
+#define POSITIONAL_TOLERANCE 100 
 
 
 // MAX speed is 255 - this is the value that gets written
@@ -56,7 +67,10 @@ Petal::Petal() {
   _petalId = 0;
   _calibratedHighLightSensorValue = 0;
   _calibratedHighLightSensorMs = 0;
-  _calibratedDurationMs = 0;
+  // default for the 30" actuator is based on 1 sec per inch
+  _calibratedDurationMs = 30;       
+  _positionMs = 0;
+  _actuatorStartedAt = 0;
   
 }
 
@@ -85,6 +99,7 @@ void Petal::printStatus() {
   JsonObject& root = jsonBuffer.createObject();
   root["petalId"] = _petalId;
   root["petalState"] = PETAL_STATE_NAMES[_petalState];
+  root["position"] = getCurrentPosition();
   root["solarSensorValue"] = analogRead(LIGHT_SENSOR_PIN);
   root["actuatorSensorValue"] = analogRead(ACTUATOR_AMP_SENSOR_PIN);
   
@@ -119,9 +134,27 @@ boolean Petal::isHalted() {
   return _petalState == PETAL_HALTED;
 }
 
+void Petal::startActuator(byte direction) {
+  digitalWrite(ACTUATOR_DIR_PIN, direction);
+  analogWrite(ACTUATOR_PWM_PIN, ACTUATOR_SPEED);
+  _direction = direction;
+  _actuatorStartedAt = millis();
+}
+
 void Petal::stopActuator() {
   // stop the actuator if moving
   analogWrite(ACTUATOR_PWM_PIN, 0);
+  unsigned int currentPosition = getCurrentPosition();
+  _positionMs = min(max(currentPosition, 0), MAX_DURATION_MS);
+  _actuatorStartedAt = 0;
+}
+
+unsigned int Petal::getCurrentPosition(){
+  int neg = _direction == EXTEND ? 1 : -1;
+  if( _actuatorStartedAt > 0 )
+    return _positionMs + neg * (millis() - _actuatorStartedAt);
+    
+  return _positionMs;
 }
 
 void Petal::loop() {
@@ -135,7 +168,7 @@ void Petal::loop() {
   else if (_petalState == PETAL_CALIBRATING)
     calibrateLoop();
   else if (_petalState == PETAL_MOVING) 
-    moveToEndLoop();
+    moveLoop();
     
   return;
 }
@@ -156,7 +189,7 @@ void Petal::calibrateLoop() {
 
   if (_calibrationStage == CALIBRATION_RESETING) {
     if( !isMoving() ){
-      moveRelativeToCurrent(EXTEND);    // start moving
+      moveToPosition(FULLY_RETRACTED);    // start moving
       delay(SAMPLING_DELAY);
     }
     if (!isMoving()) {        // should be moving unless at end
@@ -168,7 +201,7 @@ void Petal::calibrateLoop() {
   
   if (_calibrationStage == CALIBRATION_SAMPLING) {
     if (!isMoving()) {
-      moveRelativeToCurrent(RETRACT);
+      moveToPosition(FULLY_EXTENDED);
       delay(SAMPLING_DELAY);
     }
     if (isMoving() && !isHalted() ) {
@@ -181,16 +214,20 @@ void Petal::calibrateLoop() {
     else {
       long endMs = millis();
       _calibratedDurationMs = (endMs - _calibrationSamplingStartedMs);
-      _calibrationStage = CALIBRATION_POSITIONING;
+      // for now leave it fully extended until next command
+      // _calibrationStage = CALIBRATION_POSITIONING;
+      _calibrationStage = NOT_CALIBRATING;
+      halt();
       return;
     }
   }
   
   if (_calibrationStage == CALIBRATION_POSITIONING) {
     // move back to point in time when at max
-    moveRelativeToCurrent(EXTEND, _calibratedDurationMs - _calibratedHighLightSensorMs);
-    _calibrationStage = NOT_CALIBRATING;
-    _petalState = PETAL_HALTED;
+    if( moveToPosition(_calibratedDurationMs - _calibratedHighLightSensorMs) ){
+      _calibrationStage = NOT_CALIBRATING;
+      halt();
+    }
   }
 }
 
@@ -199,39 +236,80 @@ void Petal::seek() {
   _petalState = PETAL_SEEKING;
 }
 
-// mSeconds = optionally move in direction for n milliseconds and then stop
-// returns false if mSeconds != 0 and at end of travel 
-boolean Petal::moveRelativeToCurrent(int direction, int mSeconds /* =0 */) {
-  analogWrite(ACTUATOR_PWM_PIN, ACTUATOR_SPEED);
-  digitalWrite(ACTUATOR_DIR_PIN, direction);
-  boolean stillMoving = isMoving();
-  for (int i = 0; i < abs(mSeconds) / SAMPLING_DELAY && stillMoving; i++) {
-    if (isHalted()) break;
-    delay(SAMPLING_DELAY);
-    stillMoving = isMoving();
-  }
-  if (abs(mSeconds) > 0)
+// moves a petal to an absolute position with fully retracted = 0
+// and fully extended < 30000.   You must call this from a loop
+// with the same value to have it stop at the requested position.
+//
+// returns false if petal is moving to position, true if within tolerance
+// of requested position
+boolean Petal::moveToPosition(unsigned int mSeconds /* =0 */) {
+  if( mSeconds == -1 )
+    mSeconds = _requestedPositionMs;
+  else
+    _requestedPositionMs = mSeconds;
+  
+  int direction = _positionMs < mSeconds ? EXTEND : RETRACT;
+  int currentPosition = getCurrentPosition();
+  boolean withinRange = 
+    (direction == EXTEND && (currentPosition + POSITIONAL_TOLERANCE) >= mSeconds) ||
+    (direction == RETRACT && (currentPosition - POSITIONAL_TOLERANCE) <= mSeconds);
+    
+    
+  // moveToPosition is also called by the other states, don't change state unless halted
+  if( _petalState == PETAL_HALTED ) _petalState = PETAL_MOVING;
+  
+  if( direction != _direction && isMoving() ){
     stopActuator();
-  return true;
+    delay(SAMPLING_DELAY);
+  }
+  serialPrintf("direction=%d currentPosition=%d mSeconds=%d", 
+    direction, currentPosition, mSeconds);
+
+  // # run to the end ignoring current calculated position
+  if( mSeconds >= FULLY_EXTENDED || mSeconds <= FULLY_RETRACTED ){
+    if( !isMoving() ) { 
+      startActuator(direction);
+      delay(SAMPLING_DELAY);
+      if( !isMoving() ) {
+        stopActuator(); 
+        _positionMs = direction == EXTEND ? _calibratedDurationMs : 0;
+        if( _petalState == PETAL_MOVING ) _petalState = PETAL_HALTED ;
+      }
+    }
+  } 
+  else if( withinRange ){
+    if( isMoving() )
+      stopActuator();
+    
+    return true;
+  } 
+  if( !isMoving() ){
+    startActuator(direction);
+  }
+  
+  return false;
 }
 
 // returns the number of milliseconds taken
-void Petal::moveToEnd(int direction) {
-  moveRelativeToCurrent(direction);
+void Petal::moveToEnd(byte direction) {
+  int position = direction == EXTEND ? FULLY_EXTENDED : FULLY_RETRACTED;
+  moveToPosition(position);
   _petalState = PETAL_MOVING;
   
 }
 
-void Petal::moveToEndLoop() {
-  if (isMoving() && !isHalted())
+void Petal::moveLoop() {
+  if (isMoving() && !isHalted()){
+    moveToPosition();
     return;
-  else
+  }
+  else {
     if (!isHalted()) halt();
-  
+  }
   delay(SAMPLING_DELAY);  // slight delay between sampling the ACS712 module is recommended
 }
 
-void Petal::changeDirection(int direction /* =-1 */) {
+void Petal::changeDirection(byte direction /* =-1 */) {
   if (direction == -1)
     direction = _direction + 1;
   // mask to single bit - 0 or 1, so 0 + 1 becomes 1 and 1 + 1 becomes 0
@@ -240,13 +318,13 @@ void Petal::changeDirection(int direction /* =-1 */) {
 
 
 // returns false if at end of travel
-boolean Petal::seekHighInput(int pin, int direction, int inputValue) {
+boolean Petal::seekHighInput(int pin, byte direction, int inputValue) {
   int nextInputValue = inputValue;
   int maxInputValue = inputValue;
   boolean stillMoving;
   boolean atMax;
 
-  moveRelativeToCurrent(direction);
+  startActuator(direction);
 
   do {
     delay(500);

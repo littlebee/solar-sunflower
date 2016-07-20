@@ -2,6 +2,8 @@
 #ifndef __PETAL_INCLUDED
 #define __PETAL_INCLUDED
 
+#include <Arduino.h>
+
 enum PetalStates { PETAL_HALTED, PETAL_CALIBRATING, PETAL_SEEKING, PETAL_MOVING };
 enum CalibrationStages { NOT_CALIBRATING, CALIBRATION_RESETING, CALIBRATION_SAMPLING, CALIBRATION_POSITIONING };
 
@@ -18,7 +20,6 @@ public:
   
   void halt();
   bool isHalted();
-  void stopActuator();
   
   // This method takes the petal from wherever it is and extends it (closes)
   // full and then opens it fully and computes to time end to end and the point
@@ -30,6 +31,10 @@ public:
   // after calling seek()
   void seek();
   
+  // returns the current position of the actuator in milliseconds 
+  // where 0 = fully retracted and ~30000 = fully extended
+  unsigned int getCurrentPosition();
+  
   // Prints a one line status message to serial out
   void printStatus();
   
@@ -40,34 +45,41 @@ public:
   // returns true if streaming
   bool isStreaming(){ return _streamingInterval > 0; };
 
-  void moveToEnd(int direction);
+  void moveToEnd(byte direction);
+
+  // move to absolute position where mseconds is the time from fully
+  // retracted moving out
+  bool moveToPosition(unsigned int mSeconds=-1);
   
   
 private:
-  int _petalId;
-  int _direction;
+  byte _petalId;
+  byte _direction;
   int _lastLightSensorValue;
   int _calibratedHighLightSensorValue;
-  unsigned long _calibratedHighLightSensorMs;
   int _actualHighLightSensorValue;
-  unsigned long _actualHighLightSensorMs;
-  unsigned long _calibratedDurationMs;
-  unsigned long _calibrationSamplingStartedMs;
+  unsigned int _calibratedHighLightSensorMs;
+  unsigned int _actualHighLightSensorMs;
+  unsigned int _calibratedDurationMs;
+  unsigned int _calibrationSamplingStartedMs;
+  unsigned int _positionMs;
+  unsigned int _requestedPositionMs;
+  unsigned long _actuatorStartedAt;
   PetalStates _petalState;
   CalibrationStages _calibrationStage; 
   unsigned long _streamingInterval;
   unsigned long _lastStreamedAt;
-  
+
   void calibrateLoop();
-  void moveToEndLoop();
+  void moveLoop();
   void seekLoop();
   void streamLoop();
   
-  
-  bool moveRelativeToCurrent(int direction, int mSeconds=0);
+  void stopActuator();
+  void startActuator(byte direction);
 
-  void changeDirection(int direction=-1);
-  bool seekHighInput(int pin, int direction, int inputValue);
+  void changeDirection(byte direction=-1);
+  bool seekHighInput(int pin, byte direction, int inputValue);
   
   
   
