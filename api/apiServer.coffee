@@ -20,6 +20,7 @@ petals = new Petals()
 
 requestCount = 0
 
+debugger
 
 server.pre (req, res, next) ->
   req.log.info({ req: req }, 'REQUEST');
@@ -57,7 +58,18 @@ server.get '/petal', (req, res, next) ->
       return next(new restify.errors.InternalServerError(err))
   
 
-server.listen 8080, ->
+server.get '/petal/:id', (req, res, next) ->
+  petals.fetch 
+    success: ->
+      console.log "fetched #{petals.length} petals"
+      res.send petals.findWhere(petalId: parseInt(req.params.id))
+      next()
+    error: (collection, err) ->
+      req.log.error err, "ERROR"
+      return next(new restify.errors.InternalServerError(err))
+  
+
+server.listen 8086, ->
   console.log '%s listening at %s', server.name, server.url
   return
   

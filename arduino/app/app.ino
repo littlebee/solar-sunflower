@@ -45,7 +45,12 @@ void onRetract() {
 }
 
 void onAnimate() {
-  animationController->animate();
+  char *arg = scm.next();    // Get the next argument from the SerialCommand object buffer
+  unsigned int animationIndex = 0;
+  if (arg != NULL )
+    animationIndex = atoi(arg); 
+
+  animationController->animate(animationIndex);
   ourPetal->printStatus();
   
 }

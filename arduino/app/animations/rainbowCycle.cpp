@@ -1,6 +1,7 @@
 
 #include <Arduino.h>
 #include "rainbowCycle.h"
+#include "../util.h"
 
 #define NUM_CYCLES 256
 

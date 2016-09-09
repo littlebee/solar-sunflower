@@ -10,7 +10,7 @@
 #define LED_CLOCK_PIN 3    // green wire
 
 
-Adafruit_WS2801 strip = Adafruit_WS2801(25, 2, 3);
+Adafruit_WS2801 strip = Adafruit_WS2801(50, 2, 3);
 Animation *_animations[16];
 int _currentAnimationIndex;    // -1 when not animating
 
@@ -18,11 +18,10 @@ int _currentAnimationIndex;    // -1 when not animating
 AnimationController::AnimationController(Petal *pPetal, int clockPin, int dataPin, int numLeds) 
   : _pPetal(pPetal) 
 { 
-  //Serial.println("in AnimationController constructor");
-  // serialPrintf("AnimationController::constructor(%p, %d, %d, %d)", pPetal, clockPin, dataPin, numLeds);
-  // serialPrintf("AnimationController _strip.numPixels()=%d", _strip.numPixels());
-  _animations[0] = new ColorTest(_pPetal, &strip);
-  // _animations[1] = new RainbowCycle(pPetal, _strip);
+  // animation index zero is handled here. All black and stop animating
+  _animations[0] = NULL;
+  _animations[1] = new ColorTest(_pPetal, &strip);
+  _animations[2] = new RainbowCycle(pPetal, &strip);
   
   // initially no animation until asked
   _currentAnimationIndex = -1;     
@@ -40,7 +39,16 @@ void AnimationController::setup() {
 void AnimationController::loop() {
   // Serial.println("AnimationController::loop()");
   if( isAnimating() ){
-    _animations[_currentAnimationIndex]->loop();
+    if( _currentAnimationIndex == 0 )
+    {
+      for (unsigned int i = 0; i < strip.numPixels(); i++) {
+        strip.setPixelColor(i, 0);
+      } 
+      strip.show();
+      _currentAnimationIndex = -1;  
+    }
+    else
+      _animations[_currentAnimationIndex]->loop();
   }
 }
 

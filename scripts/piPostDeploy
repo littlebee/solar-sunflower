@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# This script is called after each deploy to the pi. 
+# This script is called after each deploy to the pi locally on the pi. 
 # 
 
 set -x #echo on
@@ -14,5 +14,6 @@ cd /home/pi/sunflower
 #  take a while to run, even with minimal work to do, on the pi 
 #npm install
 
+grunt deployArduino
 
-# "Ok, post deploy done."
+echo "Ok, post deploy done."

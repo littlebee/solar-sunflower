@@ -18,7 +18,7 @@ module.exports = class Petals extends Backbone.Collection
     @queuedFetches = [] 
     # array of {timestamp: ms, error: object}
     @errors = []   
-  
+      
   
   fetch: (options={}) ->
     if @isFetching 
@@ -102,7 +102,7 @@ module.exports = class Petals extends Backbone.Collection
       while @queuedFetches.length > 0
         queuedOptions = @queuedFetches.shift()
         continue unless queuedOptions?
-        queuedOptions[whichOne]?(@ resp)
+        queuedOptions[whichOne]?(@, resp)
     
         
   _handleError: (err, options={}) ->
