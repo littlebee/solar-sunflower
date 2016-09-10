@@ -5,7 +5,6 @@
 #include "SPI.h"
 #include "Adafruit_WS2801.h"
 
-#include "../petal.h"
 
 
 /*
@@ -16,7 +15,7 @@
 class Animation {
 
 public:
-  Animation(Petal *pPetal,  Adafruit_WS2801 *pStrip);
+  Animation(Adafruit_WS2801 *pStrip, unsigned long delay=2500);
 
   // reset any animation state here.  Don't change the state of the strip 
   // or petal position here.
@@ -37,8 +36,8 @@ public:
   
   
 protected: 
-  Petal *_pPetal;
   Adafruit_WS2801 *_pStrip;
+  unsigned long _delay;
   
   // call this method at the start of your loop call with a delay. 
   // if it returns true, return without doing anything

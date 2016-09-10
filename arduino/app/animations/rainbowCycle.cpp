@@ -7,10 +7,9 @@
 
 
 
-RainbowCycle::RainbowCycle(Petal *pPetal, Adafruit_WS2801 *pStrip, unsigned long delay) 
-  : Animation(pPetal, pStrip) {
-    
-  _delay = delay;
+RainbowCycle::RainbowCycle(Adafruit_WS2801 *pStrip, unsigned long delay) 
+  : Animation(pStrip, delay) 
+{
   reset();
 }
 
@@ -20,12 +19,13 @@ void RainbowCycle::reset(){
 }
 
 void RainbowCycle::loop(){
-  if( _throttleLoop(_delay) )
-    return;
-
+  // serialPrintf("rainbowCycle::loop _delay=%ld", _delay);
   int numPixels = _pStrip->numPixels();
   int next = (_currentWheelCycle * NUM_CYCLES / numPixels + _currentPixel);
-  _pStrip->setPixelColor(_currentPixel, wheel(next % NUM_CYCLES));
+  uint32_t color = wheel(next % NUM_CYCLES);
+  // serialPrintf("setting pixel %d to %X", _currentPixel, color);
+  _pStrip->setPixelColor(_currentPixel, color);
+  _pStrip->show();
   
   if( ++_currentWheelCycle > NUM_CYCLES ) 
     _currentWheelCycle = 0;

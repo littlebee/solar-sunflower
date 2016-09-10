@@ -15,13 +15,12 @@ Animation *_animations[16];
 int _currentAnimationIndex;    // -1 when not animating
 
 
-AnimationController::AnimationController(Petal *pPetal, int clockPin, int dataPin, int numLeds) 
-  : _pPetal(pPetal) 
+AnimationController::AnimationController(int clockPin, int dataPin, int numLeds) 
 { 
   // animation index zero is handled here. All black and stop animating
   _animations[0] = NULL;
-  _animations[1] = new ColorTest(_pPetal, &strip);
-  _animations[2] = new RainbowCycle(pPetal, &strip);
+  _animations[1] = new ColorTest(&strip, 2500);
+  _animations[2] = new RainbowCycle(&strip, 200);
   
   // initially no animation until asked
   _currentAnimationIndex = -1;     
@@ -54,6 +53,10 @@ void AnimationController::loop() {
 
 boolean AnimationController::isAnimating() {
   return _currentAnimationIndex != -1;
+}
+
+int AnimationController::getAnimationIndex() {
+  return _currentAnimationIndex;
 }
 
 // start animating

@@ -13,8 +13,8 @@ const byte COLORS[NUM_COLORS][3] = {
   {0,   0,   0    }
 };
 
-ColorTest::ColorTest(Petal *pPetal, Adafruit_WS2801 *pStrip, unsigned long delay) 
-  : Animation(pPetal, pStrip), _delay(delay) 
+ColorTest::ColorTest(Adafruit_WS2801 *pStrip, unsigned long delay) 
+  : Animation(pStrip, delay) 
 {
   reset();
 }

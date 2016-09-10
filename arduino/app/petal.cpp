@@ -58,6 +58,8 @@
 static const char* PETAL_STATE_NAMES[] = {"HALTED", "CALIBRATING", "SEEKING", "MOVING"};
 static int DIP_SWITCH_PINS[] = {4,5,6,7};
 
+
+
 Petal::Petal() {
   _direction = EXTEND;
   _lastLightSensorValue = 0;
@@ -71,7 +73,7 @@ Petal::Petal() {
   _calibratedDurationMs = 30;       
   _positionMs = 0;
   _actuatorStartedAt = 0;
-  
+  _animationController = NULL;  // initialized in setup()
 }
 
 void Petal::setup() {
@@ -86,6 +88,12 @@ void Petal::setup() {
     int pinValue = digitalRead(DIP_SWITCH_PINS[i]);
     _petalId = ((_petalId << 1) | pinValue);
   }
+  
+  if( _animationController != NULL ) 
+    delete _animationController;
+  _animationController = new AnimationController();
+  _animationController->setup();
+
 }
 
 // using JSON may be a little overkill, but it allows you to 
@@ -106,6 +114,7 @@ void Petal::printStatus() {
   root["calibratedHighLightSensorValue"] = _calibratedHighLightSensorValue;
   root["calibratedHighLightSensorMs"] = _calibratedHighLightSensorMs;
   root["calibratedDurationMs"] = _calibratedDurationMs;
+  root["animationIndex"] = _animationController->getAnimationIndex();
   root["freeRAM"] = freeRam();
   
   // TODO : maybe add some data logging and avg, min, max over time so the 
@@ -125,6 +134,7 @@ boolean Petal::isMoving() {
 }
 
 void Petal::halt() {
+  _animationController->halt();
   stopActuator();
   _petalState = PETAL_HALTED;
   _streamingInterval = 0;
@@ -132,6 +142,10 @@ void Petal::halt() {
 
 boolean Petal::isHalted() {
   return _petalState == PETAL_HALTED;
+}
+
+void Petal::animate(int animationIndex) {
+  _animationController->animate(animationIndex);
 }
 
 void Petal::startActuator(byte direction) {
@@ -158,6 +172,7 @@ unsigned int Petal::getCurrentPosition(){
 }
 
 void Petal::loop() {
+  _animationController->loop();
   streamLoop();
 
   if (isHalted()){

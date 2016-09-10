@@ -10,7 +10,7 @@
 class RainbowCycle : public Animation {
   
 public:
-  RainbowCycle(Petal *pPetal,  Adafruit_WS2801 *pStrip, unsigned long delay=50);
+  RainbowCycle(Adafruit_WS2801 *pStrip, unsigned long delay=100);
   
   virtual void reset();
   virtual void loop();

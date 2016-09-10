@@ -5,14 +5,13 @@
 #include "SPI.h"
 #include "Adafruit_WS2801.h"
 
-#include "petal.h"
 #include "animations/animation.h"
 #include "animations/colorTest.h"
 
 class AnimationController {
   
 public: 
-  AnimationController(Petal *pPetal, int clockPin=2, int dataPin=3, int numLeds=25);
+  AnimationController(int clockPin=2, int dataPin=3, int numLeds=50);
   
   void setup();
   
@@ -24,9 +23,10 @@ public:
   // should be called once for each arduino loop 
   void loop();
   
+  int getAnimationIndex();
+  
   
 private:
-  Petal *_pPetal;
   short _clockPin, _dataPin, _numLeds;
   
 };

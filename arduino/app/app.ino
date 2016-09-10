@@ -8,11 +8,9 @@
 
 #include "util.h"
 #include "petal.h"
-#include "animationController.h"
 
 SerialCommand scm;
 Petal *ourPetal = NULL; // = new Petal();
-AnimationController *animationController = NULL; // = new AnimationController();
 
 void onCalibrate() {
   ourPetal->calibrate();
@@ -25,7 +23,6 @@ void onSeek() {
 }
 
 void onHalt() {
-  animationController->halt();
   ourPetal->halt();
   ourPetal->printStatus();
 }
@@ -50,7 +47,7 @@ void onAnimate() {
   if (arg != NULL )
     animationIndex = atoi(arg); 
 
-  animationController->animate(animationIndex);
+  ourPetal->animate(animationIndex);
   ourPetal->printStatus();
   
 }
@@ -114,20 +111,12 @@ void setup() {
   ourPetal = new Petal();
   ourPetal->setup();
   
-  if( animationController != NULL ) delete animationController;
-  animationController = new AnimationController(ourPetal);
-  animationController->setup();
-
   Serial.println("ready");   
   
 }
 
 // the loop routine runs over and over again forever:
 void loop() {
-  
   scm.readSerial(); 
   ourPetal->loop();
-  animationController->loop();
-  
-  
 }

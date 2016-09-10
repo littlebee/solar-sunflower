@@ -3,6 +3,7 @@
 #define __PETAL_INCLUDED
 
 #include <Arduino.h>
+#include "animationController.h"
 
 enum PetalStates { PETAL_HALTED, PETAL_CALIBRATING, PETAL_SEEKING, PETAL_MOVING };
 enum CalibrationStages { NOT_CALIBRATING, CALIBRATION_RESETING, CALIBRATION_SAMPLING, CALIBRATION_POSITIONING };
@@ -50,7 +51,9 @@ public:
   // move to absolute position where mseconds is the time from fully
   // retracted moving out
   bool moveToPosition(unsigned int mSeconds=-1);
-  
+
+  // see animationController.cpp for list of animations
+  void animate(int animationIndex = 0);  
   
 private:
   byte _petalId;
@@ -69,7 +72,8 @@ private:
   CalibrationStages _calibrationStage; 
   unsigned long _streamingInterval;
   unsigned long _lastStreamedAt;
-
+  AnimationController *_animationController;
+  
   void calibrateLoop();
   void moveLoop();
   void seekLoop();

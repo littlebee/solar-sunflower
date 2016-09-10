@@ -11,14 +11,14 @@
 class ColorTest : public Animation {
   
 public:
-  ColorTest(Petal *pPetal,  Adafruit_WS2801 *pStrip, unsigned long delay=2500);
+  ColorTest(Adafruit_WS2801 *pStrip, unsigned long delay=2500);
 
   virtual void reset();
   virtual void loop();
 
 protected:
   unsigned short _currentColorIndex;
-  unsigned long _delay;
+
   
   
 };
