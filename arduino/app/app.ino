@@ -87,7 +87,7 @@ void onHelp() {
 }
 
 void onUnrecognized() {
-  serialPrintf("ERROR unrecognized command");
+  serialPrintf("{'error': 'ERROR unrecognized command'}");
 }
 
 // the setup routine runs once when you press reset:

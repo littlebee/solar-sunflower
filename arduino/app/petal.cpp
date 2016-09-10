@@ -262,9 +262,7 @@ boolean Petal::moveToPosition(unsigned int mSeconds /* =0 */) {
     stopActuator();
     delay(SAMPLING_DELAY);
   }
-  serialPrintf("direction=%d currentPosition=%d mSeconds=%d", 
-    direction, currentPosition, mSeconds);
-
+  
   // # run to the end ignoring current calculated position
   if( mSeconds >= FULLY_EXTENDED || mSeconds <= FULLY_RETRACTED ){
     if( !isMoving() ) { 

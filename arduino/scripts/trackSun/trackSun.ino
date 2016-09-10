@@ -70,7 +70,7 @@ boolean almostEqual(int a, int b, int tolerance) {
 // mSeconds = optionally move in direction for n milliseconds and then stop
 // returns false if mSeconds != 0 and at end of travel
 boolean moveActuator(int direction, int mSeconds=0) {
-  serialPrintf("moving actuator direction=%d", direction);
+  // serialPrintf("moving actuator direction=%d", direction);
   analogWrite(ACTUATOR_PWM_PIN, ACTUATOR_SPEED);
   digitalWrite(ACTUATOR_DIR_PIN, direction);
   if(mSeconds > 0){

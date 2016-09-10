@@ -18,6 +18,19 @@ module.exports = class Petals extends Backbone.Collection
     @queuedFetches = [] 
     # array of {timestamp: ms, error: object}
     @errors = []   
+    
+    @__modelsByPetalId = {}
+      
+      
+  get: (idOrModel) ->
+    try 
+      id = idOrModel.id || idOrModel
+      model = @__modelsByPetalId[parseInt(id)]
+      return model if model?
+    catch
+      # parseInt might fail
+    
+    super(idOrModel)
       
   
   fetch: (options={}) ->
@@ -31,6 +44,30 @@ module.exports = class Petals extends Backbone.Collection
     @isFetching = true;
     
     @_walkSerialPorts(options)
+    
+    
+  queueArduinoCommand: (command, options={}) ->
+    petalsOutstanding = 0
+    errors = []
+    
+    originalSuccess = options.success
+    originalError = options.error
+    decrementAndCelebrateIfDone = =>
+      petalsOutstanding -= 1
+      if petalsOutstanding <= 0
+        if errors.length > 0
+          originalError(@, errors.join(', '))
+        else
+          originalSuccess(@)  
+        
+    options.success = decrementAndCelebrateIfDone
+    options.error = (err) ->
+      errors.push err
+      decrementAndCelebrateIfDone()
+    
+    for petal in @models
+      petalsOutstanding++;
+      petal.queueArduinoCommand(command, options)
     
     
   _walkSerialPorts: (options={}) ->
@@ -87,11 +124,13 @@ module.exports = class Petals extends Backbone.Collection
       
         
   _onPetalFetchComplete: (options={}) =>
+    @__modelsByPetalId = @indexBy('petalId')
     @isFetching = false
     if @errors.length > 0
       @_callFetchCallbacks('error', @errors, options)
     else  
       @_callFetchCallbacks('success', "ok", options)
+      
     @trigger 'reset'
 
 
@@ -113,4 +152,6 @@ module.exports = class Petals extends Backbone.Collection
 
     return true    
     
+    
+  
     

@@ -69,8 +69,13 @@ module.exports = class Petal extends Backbone.Model
     return unless @draining
     
     @currentCmdObj = @commandQueue.shift()
-    console.log "sending \"#{@currentCmdObj.command}\" to #{@id}"
-    @port.write "#{@currentCmdObj.command}\n", (err, bytesWritten) =>
+    args = @currentCmdObj.options?.data || ''
+    cmd = @currentCmdObj.command
+    cmd += " #{args}" if args?
+    
+    console.log "sending \"#{cmd}\" to #{@id}"
+    
+    @port.write "#{cmd}\n", (err, bytesWritten) =>
       if @_handleError(err, @currentCmdObj.options)
         @_chainedDrain()  # only on error 
 

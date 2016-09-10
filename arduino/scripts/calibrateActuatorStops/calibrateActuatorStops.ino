@@ -45,7 +45,7 @@ boolean isActuatorMoving() {
 }
 
 void moveActuator(int direction, int speed=ACTUATOR_SPEED) {
-  serialPrintf("moving actuator direction=%d, speed=%d", direction, speed);
+  // serialPrintf("moving actuator direction=%d, speed=%d", direction, speed);
   analogWrite(ACTUATOR_PWM_PIN, speed);
   digitalWrite(ACTUATOR_DIR_PIN, direction);
   delay(200);
