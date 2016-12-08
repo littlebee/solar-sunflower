@@ -34,6 +34,13 @@ public:
   // sets all pixels to a single color
   virtual void setColor(uint32_t c);
   
+  virtual void args(int *args, int argsLength);
+  
+  byte red(uint32_t color);
+  byte green(uint32_t color);
+  byte blue(uint32_t color);
+
+  
   
 protected: 
   Adafruit_WS2801 *_pStrip;
@@ -42,6 +49,8 @@ protected:
   // call this method at the start of your loop call with a delay. 
   // if it returns true, return without doing anything
   boolean _throttleLoop(unsigned long delay);
+  int *_args;
+  int _argsLength;
   
   
 private:

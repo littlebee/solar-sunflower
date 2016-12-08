@@ -3,6 +3,8 @@
 #include "animationController.h"
 #include "animations/rainbowCycle.h"
 #include "animations/colorTest.h"
+#include "animations/chaseTo.h"
+#include "animations/fadeTo.h"
 #include "util.h"
 
 
@@ -21,6 +23,8 @@ AnimationController::AnimationController(int clockPin, int dataPin, int numLeds)
   _animations[0] = NULL;
   _animations[1] = new ColorTest(&strip, 2500);
   _animations[2] = new RainbowCycle(&strip, 200);
+  _animations[3] = new ChaseTo(&strip, 200);
+  //_animations[3] = new FadeTo(&strip, 200);
   
   // initially no animation until asked
   _currentAnimationIndex = -1;     
@@ -60,11 +64,12 @@ int AnimationController::getAnimationIndex() {
 }
 
 // start animating
-void AnimationController::animate(int animationIndex){
+void AnimationController::animate(int animationIndex, int *args, int argsLength){
   // if( _currentAnimationIndex != animationIndex )
   //   _animations[animationIndex]->reset();
   
   _currentAnimationIndex = animationIndex;
+  _animations[_currentAnimationIndex]->args(args, argsLength);
 }
 
 // stop animating 

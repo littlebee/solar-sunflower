@@ -42,10 +42,10 @@ uint32_t RainbowCycle::wheel(byte wheelPos)
    return color(wheelPos * 3, 255 - wheelPos * 3, 0);
   } else if (wheelPos < 170) {
    wheelPos -= 85;
-   return color(255 - wheelPos * 3, 0, wheelPos * 3);
+   return color(255 - wheelPos * 3, 0, 0); // wheelPos * 3);
   } else {
    wheelPos -= 170; 
-   return color(0, wheelPos * 3, 255 - wheelPos * 3);
+   return color(0, wheelPos * 3, 0); // 255 - wheelPos * 3);
   }
 }
 

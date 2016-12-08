@@ -17,7 +17,7 @@ public:
   
   boolean isAnimating();
   // start animating
-  void animate(int animationIndex = 0);
+  void animate(int animationIndex = 0, int *args = NULL, int argsLength = 0);
   // stop animating 
   void halt();    
   // should be called once for each arduino loop 

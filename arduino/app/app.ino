@@ -11,6 +11,7 @@
 
 SerialCommand scm;
 Petal *ourPetal = NULL; // = new Petal();
+int args[8]; 
 
 void onCalibrate() {
   ourPetal->calibrate();
@@ -46,8 +47,14 @@ void onAnimate() {
   unsigned int animationIndex = 0;
   if (arg != NULL )
     animationIndex = atoi(arg); 
+  
+  int i = 0;
+  while( (arg = scm.next()) != NULL ){
+    args[i] = atoi(arg);
+    i++;
+  }
 
-  ourPetal->animate(animationIndex);
+  ourPetal->animate(animationIndex, args, i);
   ourPetal->printStatus();
   
 }
@@ -97,13 +104,13 @@ void setup() {
   scm.addCommand("seek", onSeek);       
   scm.addCommand("halt", onHalt);  
   scm.addCommand("status", onStatus);
-  scm.addCommand("stream", onStream);
+  //scm.addCommand("stream", onStream);
   scm.addCommand("extend", onExtend);
   scm.addCommand("retract", onRetract);
-  scm.addCommand("position", onPosition);
-  scm.addCommand("animate", onAnimate);
+  scm.addCommand("pos", onPosition);
+  scm.addCommand("ani", onAnimate);
   
-  scm.addCommand("help", onHelp);
+  // scm.addCommand("help", onHelp);
   scm.addDefaultHandler(onUnrecognized);  
   
   

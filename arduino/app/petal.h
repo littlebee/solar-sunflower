@@ -53,8 +53,8 @@ public:
   bool moveToPosition(unsigned int mSeconds=-1);
 
   // see animationController.cpp for list of animations
-  void animate(int animationIndex = 0);  
-  
+  void animate(int animationIndex = 0, int *args = NULL, int argsLength = 0);  
+
 private:
   byte _petalId;
   byte _direction;

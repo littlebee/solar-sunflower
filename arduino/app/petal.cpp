@@ -1,4 +1,4 @@
-/*
+\/*
   This script moves an actuator until maximum analog input is
   acheived.  While it's example application is to track a light source
   with a solar cell that is attached to the end of the actuator, it
@@ -134,7 +134,6 @@ boolean Petal::isMoving() {
 }
 
 void Petal::halt() {
-  _animationController->halt();
   stopActuator();
   _petalState = PETAL_HALTED;
   _streamingInterval = 0;
@@ -144,8 +143,8 @@ boolean Petal::isHalted() {
   return _petalState == PETAL_HALTED;
 }
 
-void Petal::animate(int animationIndex) {
-  _animationController->animate(animationIndex);
+void Petal::animate(int animationIndex, int *args, int argsLength) {
+  _animationController->animate(animationIndex, args, argsLength);
 }
 
 void Petal::startActuator(byte direction) {
